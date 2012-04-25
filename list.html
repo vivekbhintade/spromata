@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/h.js"></script>
+    <script type="text/javascript" src="/js/underscore.js"></script>
+    <script type="text/javascript" src="/js/backbone.js"></script>
+    <link rel="stylesheet" type="text/css" href="list.css" />
+    <script type="text/javascript">
+    var root;
+    $(function() {
+        
+        var Item = Backbone.Model.extend({
+            url: function() { return "/" + this.get('id'); },
+            initialize: function() {
+                //if (!this.get('id')) this.set({'id': this.get('_id')['$oid']});
+                if (!this.get('id')) this.set({'id': this.get('_id')});
+                if (!this.get('items')) this.set({'items': new Items()});
+                else this.set({'items': new Items(this.get('items'))});
+            },
+            parse: function(response) {
+                //response['id'] = response['_id']['$oid'];
+                response['id'] = response['_id'];
+                response['items'] = new Items(response['items']);
+                return response;
+            },
+        });
+
+        var Items = Backbone.Collection.extend({
+            model: Item,
+        });
+
+        var ItemView = Backbone.View.extend({
+            events: {
+                'submit form': 'addChild',
+                'click': 'grow',
+            },
+            initialize: function() {
+                this.el = h(
+                    'div',
+                    {class: 'item', id: this.model.get('id')},
+                    [
+                        h('div', {class: 'content'}, [
+                            h('form', {action: this.model.url() + '/add'},
+                                [h('input', {type: 'text', name: 'name'})]), 
+                            h('span', {class: 'name'}),
+                        ]),
+                        h('div', {class: 'attributes'}),
+                        h('div', {class: 'items'}),
+                    ]
+                );
+                this.$el = $(this.el);
+                this.model.bind('change', this.render, this);
+            },
+            addItem: function(new_item) {
+                var new_item_view = new ItemView({model: new_item});
+                this.$(".items").first().append(new_item_view.render().el);
+            },
+            render: function() {
+                if (this.model.get('items').length)
+                    this.$el.addClass('expandable');
+                this.$(".name").text(this.model.get('name'));
+                this.$(".attributes").first().empty();
+                this.$(".items").first().empty();
+                _.each(this.model.get('items').models, function(new_item) {
+                    this.addItem(new_item);
+                }, this);
+                return this;
+            },
+            addChild: function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var url = $(e.target).attr('action');
+                //this.model.set({url: url})
+                //this.model.save()
+                $.post(url, {name: $(e.target).children('input[name="name"]').val()});
+            },
+            expand: function() {
+                $(this.el).addClass('expanded');
+            },
+            grow: function(e) {
+                this.model.fetch();
+                this.render();
+                this.expand();
+                e.stopPropagation();
+            },
+        });
+
+        var Root = new Item({{ root }});
+        //Root.fetch();
+        root = Root;
+        var RootView = new ItemView({model: Root});
+        RootView.expand();
+        $("#main").append(RootView.render().el);
+
+    });
+    </script>
+</head>
+<body>
+<div id="main">
+</div>
+</body>
+</html>
