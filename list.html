@@ -11,7 +11,12 @@
     $(function() {
         
         var Item = Backbone.Model.extend({
-            url: function() { return "/" + this.get('id'); },
+            url: function() { 
+                if (this.get('id'))
+                    return "/" + this.get('id');
+                else
+                    return "/new";
+            },
             initialize: function() {
                 //if (!this.get('id')) this.set({'id': this.get('_id')['$oid']});
                 if (!this.get('id')) this.set({'id': this.get('_id')});
@@ -73,7 +78,10 @@
                 var url = $(e.target).attr('action');
                 //this.model.set({url: url})
                 //this.model.save()
-                $.post(url, {name: $(e.target).children('input[name="name"]').val()});
+                //$.post(url, {name: $(e.target).children('input[name="name"]').val()});
+                var new_name = $(e.target).children('input[name="name"]').val();
+                var new_item = new Item({name: name});
+                new_item.save();
             },
             expand: function() {
                 $(this.el).addClass('expanded');
