@@ -1,4 +1,5 @@
 var root;
+var rootNode;
 var selectedNode;
 
 var Item = Backbone.Model.extend({
@@ -41,14 +42,13 @@ var ItemView = Backbone.View.extend({
                 h('div', {class: 'content'}, [
                     h('div', {class: 'name'}),
                 ]),
-                h('div', {class: 'attributes'}),
-                h('div', {class: 'items'}),
             ]
         );
-        this.form = h('form', {action: this.model.url() + '/add'},
-            [h('input', {type: 'text', name: 'name'})]);
         this.$el = $(this.el);
-        this.$form = $(this.form);
+        this.$form = $(h('form', {action: this.model.url() + '/add'},
+            [h('input', {type: 'text', name: 'name'})]));
+        this.$items = $(h('div', {class: 'items'}));
+        this.$items.appendTo(this.$el);
         this.$form.appendTo(this.$el);
         this.model.bind('change', this.render, this);
         this.model.bind('destroy', this.remove, this);
@@ -58,7 +58,7 @@ var ItemView = Backbone.View.extend({
     addItem: function(new_item) {
         var new_item_view = new ItemView({model: new_item, parent: this});
         this.children.push(new_item_view);
-        this.$(".items").first().append(new_item_view.render().el);
+        this.$items.append(new_item_view.render().el);
     },
     render: function() {
         var self = this;
@@ -75,7 +75,7 @@ var ItemView = Backbone.View.extend({
         else name_rep = h('span', name);
         this.$(".name").first().empty().append(name_rep);
         this.$(".attributes").first().empty();
-        this.$(".items").first().empty();
+        this.$items.empty();
         this.$form.children('input[name="name"]').bind('keydown', 'esc', function() {
             this.blur();
             self.hideForm();
@@ -99,8 +99,6 @@ var ItemView = Backbone.View.extend({
         this.model.get('items').add(new_item);
         this.render();
         this.expand();
-        this.$form.children('input[name="name"]').val('');
-        this.$form.children('input[name="name"]').blur();
         this.hideForm();
     },
     expand: function() {
@@ -109,10 +107,12 @@ var ItemView = Backbone.View.extend({
             this.grown = true;
         }
         $(this.el).addClass('expanded');
+        this.$items.slideDown(200);
         this.expanded = true;
     },
     unexpand: function() {
         $(this.el).removeClass('expanded');
+        this.$items.slideUp(200);
         this.expanded = false;
     },
     grow: function(e) {
@@ -132,7 +132,9 @@ var ItemView = Backbone.View.extend({
         $(this.el).children('form').first().children('input').focus();
     },
     hideForm: function() {
-        this.$('form').hide();
+        this.$form.children('input[name="name"]').val('');
+        this.$form.children('input[name="name"]').blur();
+        this.$form.hide();
     },
     select: function(e) {
         e.stopPropagation();
@@ -156,12 +158,20 @@ function select_node(node_view) {
     $('.selected').removeClass('selected');
     $(node_view.el).addClass('selected');
     selectedNode = node_view;
+    var from_top = selectedNode.$el.offset().top;
+    var window_height = $(window).height();
+    var scroll_top = document.body.scrollTop;
+    if (from_top + 30 > (window_height + scroll_top)) document.body.scrollTop = from_top - window_height + 40;
+    if (from_top < (scroll_top)) document.body.scrollTop = from_top - 10;
     console.log(selectedNode)
 }
 
 function move_left() {
     if (selectedNode.expanded) selectedNode.unexpand();
-    else select_node(selectedNode.parent);
+    else {
+        if (selectedNode.parent == rootNode) return;
+        select_node(selectedNode.parent);
+    }
 }
 function move_down(go_inner) {
     go_inner = typeof go_inner !== 'undefined' ? go_inner : true;
@@ -183,14 +193,18 @@ function find_deepest_child(from_node) {
     } else { return from_node; }
 }
 function find_up_node(from_node) {
+    console.log("looking up");
     var select_pos = from_node.parent.children.indexOf(from_node);
     if ((select_pos) > 0) {
         var up_node = from_node.parent.children[select_pos - 1];
         return find_deepest_child(up_node);
-    } else { return from_node.parent; }
+    } else {
+        console.log("not > 0");
+        if (from_node.parent == rootNode) return find_deepest_child(rootNode);
+        return from_node.parent;
+    }
 }
 function move_up() {
-    var select_pos = selectedNode.parent.children.indexOf(selectedNode);
     select_node(find_up_node(selectedNode));
 }
 function move_right() {

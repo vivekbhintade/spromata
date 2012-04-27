@@ -1,23 +1,22 @@
 <!doctype html>
 <html>
 <head>
+    <title>hjklist</title>
     <script type="text/javascript" src="/js/jquery.js"></script>
     <script type="text/javascript" src="/js/hotkeys.js"></script>
     <script type="text/javascript" src="/js/h.js"></script>
     <script type="text/javascript" src="/js/underscore.js"></script>
     <script type="text/javascript" src="/js/backbone.js"></script>
-    <script type="text/javascript" src="/js/list.js"></script>
+    <script type="text/javascript" src="list.js"></script>
     <link rel="stylesheet" type="text/css" href="list.css" />
     <script type="text/javascript">
         $(function() {
-            var Root = new Item({{ root }});
-            //Root.fetch();
-            root = Root;
-            var RootView = new ItemView({model: Root});
-            RootView.parent = RootView;
-            selectedNode = RootView;
-            RootView.expand();
-            $("#root").append(RootView.render().el);
+            root = new Item({{ root }});
+            rootNode = new ItemView({model: root});
+            rootNode.parent = rootNode;
+            selectedNode = rootNode;
+            rootNode.expand();
+            $("#root").append(rootNode.render().el);
             $("body").click(function(e) { return false; });
         });
     </script>

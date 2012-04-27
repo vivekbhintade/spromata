@@ -22,18 +22,19 @@ h1 span { display: none; }
 }
 .item {
     background: rgba(250, 250, 250, 0.1);
-    display: none;
+    nodisplay: none;
     position: relative;
 }
 #root>.item { display: block; }
 #root>.item>.content { display: none; }
+#root>.item>.items { display: block; }
 .item .content {
     padding: 5px 10px;
     border: 1px solid #fefefe;
     border-top-color: #ddd;
     background: #fefefe;
 }
-.item .items { padding-left: 20px; }
+.item .items { display: none; padding-left: 20px; }
 .item.expandable>.content:before {
     content: "+";
     color: rgba(255,255,255,0.8);
@@ -48,16 +49,16 @@ h1 span { display: none; }
     content: "-";
 }
 .item.expandable.expanded>.content {
-    background: #eee;
+    font-weight: bold;
 }
 .item.selected>.content {
     background: #e9faff !important;
     border: 1px solid #5bf;
     box-shadow: 0 0 10px #5bf;
 }
-.item.expanded { display: block; }
-.item>.items>.item { display: none; }
-.item.expanded>.items>.item { display: block; }
+.item.expanded { nodisplay: block; }
+.item>.items>.item { nodisplay: none; }
+.item.expanded>.items>.item { nodisplay: block; }
 .item form {
     padding: 5px 10px;
     margin-left: 20px;
