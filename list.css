@@ -17,7 +17,7 @@ h1 {
 h1 span { display: none; }
 #main {
     color: #222;
-    margin: 50px auto;
+    margin: 20px auto;
     width: 500px;
 }
 .item {
@@ -33,6 +33,11 @@ h1 span { display: none; }
     border: 1px solid #fefefe;
     border-top-color: #ddd;
     background: #fefefe;
+}
+.item>.content>.name>img {
+    display: block;
+    padding: 5px 0;
+    max-width: 100%;
 }
 .item .items { display: none; padding-left: 20px; }
 .item.expandable>.content:before {

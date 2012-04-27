@@ -84,6 +84,7 @@ var ItemView = Backbone.View.extend({
         _.each(this.model.get('items').models, function(new_item) {
             self.addItem(new_item);
         });
+        if (this == rootNode) select_node(this.children[0]);
         return this;
     },
     addChild: function(e) {
