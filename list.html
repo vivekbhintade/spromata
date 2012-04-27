@@ -2,6 +2,7 @@
 <html>
 <head>
     <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/jkey.js"></script>
     <script type="text/javascript" src="/js/h.js"></script>
     <script type="text/javascript" src="/js/underscore.js"></script>
     <script type="text/javascript" src="/js/backbone.js"></script>
@@ -37,36 +38,52 @@
 
         var ItemView = Backbone.View.extend({
             events: {
+                'dblclick': 'grow',
+                'click': 'select',
                 'submit form': 'addChild',
-                'click': 'grow',
             },
-            initialize: function() {
+            initialize: function(options) {
+                _.bindAll(this);
                 this.el = h(
                     'div',
                     {class: 'item', id: this.model.get('id')},
                     [
                         h('div', {class: 'content'}, [
-                            h('form', {action: this.model.url() + '/add'},
-                                [h('input', {type: 'text', name: 'name'})]), 
-                            h('span', {class: 'name'}),
+                            h('div', {class: 'name'}),
                         ]),
+                        h('form', {action: this.model.url() + '/add'},
+                            [h('input', {type: 'text', name: 'name'})]), 
                         h('div', {class: 'attributes'}),
                         h('div', {class: 'items'}),
                     ]
                 );
                 this.$el = $(this.el);
                 this.model.bind('change', this.render, this);
+                this.model.bind('destroy', this.remove, this);
+                if (options.parent) this.parent = options.parent;
+                this.children = [];
             },
             addItem: function(new_item) {
-                var new_item_view = new ItemView({model: new_item});
+                var new_item_view = new ItemView({model: new_item, parent: this});
+                this.children.push(new_item_view);
                 this.$(".items").first().append(new_item_view.render().el);
             },
             render: function() {
-                if (this.model.get('items').length)
+                if (this.model.get('items').length) {
                     this.$el.addClass('expandable');
-                this.$(".name").text(this.model.get('name'));
+                    this.expandable = true;
+                } else {
+                    this.expandable = false;
+                }
+                var name = this.model.get('name');
+                var name_rep;
+                if (['.png','.jpg','.gif'].indexOf(name.substr(-4)) != -1) name_rep = h('img', {src: name});
+                else if (name.substr(0,7) == 'http://') name_rep = h('a', {href: name}, name);
+                else name_rep = h('span', name);
+                this.$(".name").first().empty().append(name_rep);
                 this.$(".attributes").first().empty();
                 this.$(".items").first().empty();
+                this.children = [];
                 _.each(this.model.get('items').models, function(new_item) {
                     this.addItem(new_item);
                 }, this);
@@ -75,31 +92,130 @@
             addChild: function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                var url = $(e.target).attr('action');
+                //var url = $(e.target).attr('action');
                 //this.model.set({url: url})
                 //this.model.save()
                 //$.post(url, {name: $(e.target).children('input[name="name"]').val()});
-                var new_name = $(e.target).children('input[name="name"]').val();
-                var new_item = new Item({name: name});
+                var new_name = this.$('input[name="name"]').val();
+                var new_item = new Item({name: new_name, from_:this.model.id});
                 new_item.save();
-            },
-            expand: function() {
-                $(this.el).addClass('expanded');
-            },
-            grow: function(e) {
-                this.model.fetch();
+                this.model.get('items').add(new_item);
                 this.render();
                 this.expand();
+                this.$('input[name="name"]').val('');
+            },
+            expand: function() {
+                if (!this.grown) {
+                    this.model.fetch();
+                    this.grown = true;
+                }
+                $(this.el).addClass('expanded');
+                this.expanded = true;
+            },
+            unexpand: function() {
+                $(this.el).removeClass('expanded');
+                this.expanded = false;
+            },
+            grow: function(e) {
+                console.log('grow');
                 e.stopPropagation();
+                e.preventDefault();
+                if ($(this.el).hasClass('expanded')) {
+                    this.unexpand();
+                } else {
+                    this.expand();
+                }
+            },
+            select: function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                select_node(this);
+            },
+            update: function() {
+                this.model.fetch();
+            },
+            clear: function() {
+                this.model.destroy();
+            },
+            remove: function() {
+                this.parent.children = _.without(this.parent.children, this);
+                $(this.el).remove();
             },
         });
+
+        function select_node(node_view) {
+            $('.selected').removeClass('selected');
+            $(node_view.el).addClass('selected');
+            selectedNode = node_view;
+            console.log(selectedNode)
+        }
+        var selectedNode = false;
 
         var Root = new Item({{ root }});
         //Root.fetch();
         root = Root;
         var RootView = new ItemView({model: Root});
+        RootView.parent = RootView;
+        selectedNode = RootView;
         RootView.expand();
         $("#main").append(RootView.render().el);
+        $("body").click(function(e) { return false; });
+
+        function move_left() {
+            if (!selectedNode) return;
+            if (selectedNode.expanded) selectedNode.unexpand();
+            else select_node(selectedNode.parent);
+        }
+        function move_down(go_inner) {
+            go_inner = typeof go_inner !== 'undefined' ? go_inner : true;
+            if (!selectedNode) return;
+            if (selectedNode.expanded && go_inner) {
+                move_right();
+            } else {
+                var select_pos = selectedNode.parent.children.indexOf(selectedNode);
+                if ((select_pos + 1) < selectedNode.parent.children.length) {
+                    select_node(selectedNode.parent.children[select_pos + 1]);
+                } else {
+                    select_node(selectedNode.parent);
+                    move_down(false);
+                }
+            }
+        }
+        function find_deepest_child(from_node) {
+            if (from_node.expanded) {
+                return find_deepest_child(_.last(from_node.children));
+            } else { return from_node; }
+        }
+        function find_up_node(from_node) {
+            var select_pos = from_node.parent.children.indexOf(from_node);
+            if ((select_pos) > 0) {
+                var up_node = from_node.parent.children[select_pos - 1];
+                return find_deepest_child(up_node);
+            } else { return from_node.parent; }
+        }
+        function move_up() {
+            if (!selectedNode) return;
+            var select_pos = selectedNode.parent.children.indexOf(selectedNode);
+            select_node(find_up_node(selectedNode));
+        }
+        function move_right() {
+            if (!selectedNode) return;
+            if (selectedNode.expandable) {
+                if (!selectedNode.expanded) selectedNode.expand();
+                else select_node(selectedNode.children[0]);
+            }
+        }
+        $(document).jkey('h', move_left);
+        $(document).jkey('j', move_down);
+        $(document).jkey('k', move_up);
+        $(document).jkey('l', move_right);
+        $(document).jkey('backspace,delete', true, function() {
+            if (!$('input:focus').length) {
+                selectedNode.clear();
+                move_up();
+                selectedNode.update();
+            }
+        });
 
     });
     </script>

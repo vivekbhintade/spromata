@@ -20,13 +20,28 @@ def add_node_rep_items(node, node_rep, item_levels=0):
     for item in node_items:
         item_rep = make_node_rep(item, item_levels)
         new_items.append(item_rep)
-    new_node_rep['items'] = new_items
+    if len(new_items) > 0: new_node_rep['items'] = new_items
     return new_node_rep
 
 @bottle.get('/')
 def index():
     context = {'root': pymongo_to_json(make_node_rep(root, 2))}
     return bottle.jinja2_template('list', context)
+
+@bottle.post('/new')
+def new_node():
+    new_node = nodes.new(name=bottle.request.json.get('name'))
+    print bottle.request.forms.get('from_')
+    from_node = nodes.get(_id=bottle.request.json.get('from_'))
+    from_node.to_ = new_node
+    return pymongo_to_json(make_node_rep(new_node))
+
+@bottle.delete('/<node_id:re:[a-zA-Z0-9]+>')
+def delete_node(node_id):
+    node = nodes.get(_id=node_id)
+    edges.remove(to_=node.id)
+    edges.remove(from_=node.id)
+    nodes.remove(**node)
 
 @bottle.get('/<node_id:re:[a-zA-Z0-9]+>')
 def show_node(node_id):
@@ -56,4 +71,4 @@ def static_file(filepath):
     return bottle.static_file(filepath, root='.')
 
 bottle.debug(True)
-bottle.run(port=80, reloader=True)
+bottle.run(host='0.0.0.0', port=80, reloader=True)
