@@ -9,6 +9,13 @@ body {
     -ms-user-select: none;
     user-select: none;
 }
+h1 {
+    width: 250px;
+    height: 50px;
+    background: url('/images/hjklist_logo.png') no-repeat;
+    margin-bottom: 20px;
+}
+h1 span { display: none; }
 #main {
     color: #222;
     margin: 50px auto;
@@ -19,8 +26,8 @@ body {
     display: none;
     position: relative;
 }
-#main>.item { display: block; }
-#main>.item>.content { display: none; }
+#root>.item { display: block; }
+#root>.item>.content { display: none; }
 .item .content {
     padding: 5px 10px;
     border: 1px solid #fefefe;

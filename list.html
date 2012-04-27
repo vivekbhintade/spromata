@@ -158,7 +158,7 @@
         RootView.parent = RootView;
         selectedNode = RootView;
         RootView.expand();
-        $("#main").append(RootView.render().el);
+        $("#root").append(RootView.render().el);
         $("body").click(function(e) { return false; });
 
         function move_left() {
@@ -222,6 +222,9 @@
 </head>
 <body>
 <div id="main">
+    <h1><span>hjklist</span></h1>
+    <div id="root">
+    </div>
 </div>
 </body>
 </html>
