@@ -2,7 +2,7 @@
 <html>
 <head>
     <script type="text/javascript" src="/js/jquery.js"></script>
-    <script type="text/javascript" src="/js/jkey.js"></script>
+    <script type="text/javascript" src="/js/hotkeys.js"></script>
     <script type="text/javascript" src="/js/h.js"></script>
     <script type="text/javascript" src="/js/underscore.js"></script>
     <script type="text/javascript" src="/js/backbone.js"></script>
@@ -51,13 +51,15 @@
                         h('div', {class: 'content'}, [
                             h('div', {class: 'name'}),
                         ]),
-                        h('form', {action: this.model.url() + '/add'},
-                            [h('input', {type: 'text', name: 'name'})]), 
                         h('div', {class: 'attributes'}),
                         h('div', {class: 'items'}),
                     ]
                 );
+                this.form = h('form', {action: this.model.url() + '/add'},
+                    [h('input', {type: 'text', name: 'name'})]);
                 this.$el = $(this.el);
+                this.$form = $(this.form);
+                this.$form.appendTo(this.$el);
                 this.model.bind('change', this.render, this);
                 this.model.bind('destroy', this.remove, this);
                 if (options.parent) this.parent = options.parent;
@@ -96,13 +98,15 @@
                 //this.model.set({url: url})
                 //this.model.save()
                 //$.post(url, {name: $(e.target).children('input[name="name"]').val()});
-                var new_name = this.$('input[name="name"]').val();
+                var new_name = this.$form.children('input[name="name"]').val();
                 var new_item = new Item({name: new_name, from_:this.model.id});
                 new_item.save();
                 this.model.get('items').add(new_item);
                 this.render();
                 this.expand();
-                this.$('input[name="name"]').val('');
+                this.$form.children('input[name="name"]').val('');
+                this.$form.children('input[name="name"]').blur();
+                this.hideForm();
             },
             expand: function() {
                 if (!this.grown) {
@@ -126,6 +130,15 @@
                     this.expand();
                 }
             },
+            showForm: function() {
+                if (!$(this.el).hasClass('expanded')) 
+                    this.expand();
+                $(this.el).children('form').first().show();
+                $(this.el).children('form').first().children('input').focus();
+            },
+            hideForm: function() {
+                this.$('form').hide();
+            },
             select: function(e) {
                 e.stopPropagation();
                 e.preventDefault();
@@ -144,31 +157,29 @@
         });
 
         function select_node(node_view) {
+            selectedNode.hideForm();
             $('.selected').removeClass('selected');
             $(node_view.el).addClass('selected');
             selectedNode = node_view;
             console.log(selectedNode)
         }
-        var selectedNode = false;
 
         var Root = new Item({{ root }});
         //Root.fetch();
         root = Root;
         var RootView = new ItemView({model: Root});
         RootView.parent = RootView;
-        selectedNode = RootView;
+        var selectedNode = RootView;
         RootView.expand();
         $("#root").append(RootView.render().el);
         $("body").click(function(e) { return false; });
 
         function move_left() {
-            if (!selectedNode) return;
             if (selectedNode.expanded) selectedNode.unexpand();
             else select_node(selectedNode.parent);
         }
         function move_down(go_inner) {
             go_inner = typeof go_inner !== 'undefined' ? go_inner : true;
-            if (!selectedNode) return;
             if (selectedNode.expanded && go_inner) {
                 move_right();
             } else {
@@ -194,25 +205,35 @@
             } else { return from_node.parent; }
         }
         function move_up() {
-            if (!selectedNode) return;
             var select_pos = selectedNode.parent.children.indexOf(selectedNode);
             select_node(find_up_node(selectedNode));
         }
         function move_right() {
-            if (!selectedNode) return;
             if (selectedNode.expandable) {
                 if (!selectedNode.expanded) selectedNode.expand();
                 else select_node(selectedNode.children[0]);
             }
         }
-        $(document).jkey('h', move_left);
-        $(document).jkey('j', move_down);
-        $(document).jkey('k', move_up);
-        $(document).jkey('l', move_right);
-        $(document).jkey('backspace,delete', true, function() {
+        function new_node(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('newing');
+            console.log(selectedNode);
+            selectedNode.showForm();
+        }
+
+        $(document).bind('keydown', 'h', move_left);
+        $(document).bind('keydown', 'j', move_down);
+        $(document).bind('keydown', 'k', move_up);
+        $(document).bind('keydown', 'l', move_right);
+        $(document).bind('keydown', 'o', new_node);
+        $(document).bind('keydown', 'backspace', function(e) {
             if (!$('input:focus').length) {
+                e.preventDefault();
+                e.stopPropagation();
+                var up_node = find_up_node(selectedNode);
                 selectedNode.clear();
-                move_up();
+                select_node(up_node);
                 selectedNode.update();
             }
         });
