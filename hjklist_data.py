@@ -3,7 +3,9 @@ from collections import defaultdict
 import pymongo
 import pymongo.json_util
 from pymongo.objectid import ObjectId as oid
-conn = pymongo.Connection()
+import hjklist_config as config
+
+conn = pymongo.Connection(host=config.db_host)
 db = conn.nimbus
 
 class attrdict(defaultdict):

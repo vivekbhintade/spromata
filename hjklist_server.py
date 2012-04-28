@@ -1,7 +1,7 @@
 import bottle
 import pymongo
 import json
-from list_data import *
+from hjklist_data import *
 
 root = nodes.get(name='root')
 root['items'] = root.to_
@@ -26,7 +26,7 @@ def add_node_rep_items(node, node_rep, item_levels=0):
 @bottle.get('/')
 def index():
     context = {'root': pymongo_to_json(make_node_rep(root, 2))}
-    return bottle.jinja2_template('list', context)
+    return bottle.jinja2_template('hjklist', context)
 
 @bottle.post('/new')
 def new_node():
@@ -70,5 +70,5 @@ def add_node(node_id):
 def static_file(filepath):
     return bottle.static_file(filepath, root='.')
 
-bottle.debug(True)
-bottle.run(host='0.0.0.0', port=80, reloader=True)
+bottle.debug(config.debug)
+bottle.run(server=config.server, host='0.0.0.0', port=80, reloader=config.debug)
