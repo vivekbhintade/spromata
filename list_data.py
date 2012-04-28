@@ -55,6 +55,35 @@ class Collection(object):
     def remove(self, **data):
         self.collection.remove(data)
 
+class User(Document):
+    types = {'links': list}
+    @property
+    def links(self):
+        return links.by_user(self)
+    @property
+    def activated_links(self):
+        return links.activated_by_user(self)
+    @property
+    def remaining_links(self):
+        return self.plan.quantity - self.activated_links
+    @property
+    def has_paid(self):
+        return self.has_key('stripe_id')
+    @property
+    def plan(self):
+        if self.has_key('plan'):
+            return plans.get(_id=self['plan'])
+        else: return FREE_PLAN
+    def has_plan(self, plan):
+        if self.has_key('plan'): return self.plan.id == plan.id
+        else: return not (plan.price > 0)
+
+class Users(Collection):
+    collection = db.users
+    type = User
+    def auth(self, username, password):
+        return self.get(username=username, password=password, deactivated={'$exists': False})
+
 class Edge(Document): 
     @property
     def to_(self): return nodes.get(_id=self['to_'])
