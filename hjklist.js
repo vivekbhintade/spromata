@@ -29,8 +29,7 @@ var Items = Backbone.Collection.extend({
 
 var ItemView = Backbone.View.extend({
     events: {
-        'dblclick': 'grow',
-        'click': 'select',
+        'click': 'selectAndGrow',
         'submit form': 'addChild',
     },
     initialize: function(options) {
@@ -90,10 +89,6 @@ var ItemView = Backbone.View.extend({
     addChild: function(e) {
         e.preventDefault();
         e.stopPropagation();
-        //var url = $(e.target).attr('action');
-        //this.model.set({url: url})
-        //this.model.save()
-        //$.post(url, {name: $(e.target).children('input[name="name"]').val()});
         var new_name = this.$form.children('input[name="name"]').val();
         var new_item = new Item({name: new_name, from_:this.model.id});
         new_item.save();
@@ -101,6 +96,7 @@ var ItemView = Backbone.View.extend({
         this.render();
         this.expand();
         this.hideForm();
+        this.showForm();
     },
     expand: function() {
         if (!this.grown) {
@@ -116,10 +112,24 @@ var ItemView = Backbone.View.extend({
         this.$items.slideUp(200);
         this.expanded = false;
     },
-    grow: function(e) {
-        console.log('grow');
+    select: function(e) {
         e.stopPropagation();
         e.preventDefault();
+        select_node(this);
+    },
+    grow: function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        if ($(this.el).hasClass('expanded')) {
+            this.unexpand();
+        } else {
+            this.expand();
+        }
+    },
+    selectAndGrow: function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        select_node(this);
         if ($(this.el).hasClass('expanded')) {
             this.unexpand();
         } else {
@@ -136,11 +146,6 @@ var ItemView = Backbone.View.extend({
         this.$form.children('input[name="name"]').val('');
         this.$form.children('input[name="name"]').blur();
         this.$form.hide();
-    },
-    select: function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        select_node(this);
     },
     update: function() {
         this.model.fetch();
@@ -164,13 +169,12 @@ function select_node(node_view) {
     var scroll_top = document.body.scrollTop;
     if (from_top + 30 > (window_height + scroll_top)) document.body.scrollTop = from_top - window_height + 40;
     if (from_top < (scroll_top)) document.body.scrollTop = from_top - 10;
-    console.log(selectedNode)
 }
 
 function move_left() {
-    if (selectedNode.expanded) selectedNode.unexpand();
+    if (selectedNode.expanded && selectedNode != rootNode) selectedNode.unexpand();
     else {
-        if (selectedNode.parent == rootNode) return;
+        //if (selectedNode.parent == rootNode) return;
         select_node(selectedNode.parent);
     }
 }
@@ -194,13 +198,11 @@ function find_deepest_child(from_node) {
     } else { return from_node; }
 }
 function find_up_node(from_node) {
-    console.log("looking up");
     var select_pos = from_node.parent.children.indexOf(from_node);
     if ((select_pos) > 0) {
         var up_node = from_node.parent.children[select_pos - 1];
         return find_deepest_child(up_node);
     } else {
-        console.log("not > 0");
         if (from_node.parent == rootNode) return find_deepest_child(rootNode);
         return from_node.parent;
     }
@@ -217,8 +219,6 @@ function move_right() {
 function new_node(e) {
     e.preventDefault();
     e.stopPropagation();
-    console.log('newing');
-    console.log(selectedNode);
     selectedNode.showForm();
 }
 
@@ -228,6 +228,7 @@ $(function() {
     $(document).bind('keydown', 'k', move_up);
     $(document).bind('keydown', 'l', move_right);
     $(document).bind('keydown', 'o', new_node);
+    $(document).bind('keydown', 'return', new_node);
     $(document).bind('keydown', 'backspace', function(e) {
         if (!$('input:focus').length) {
             e.preventDefault();

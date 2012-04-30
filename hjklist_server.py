@@ -1,27 +1,11 @@
 import bottle
 import pymongo
 import json
+from meta_server import *
 from hjklist_data import *
 
 root = nodes.get(name='root')
 root['items'] = root.to_
-
-def make_node_rep(node, item_levels=0):
-    node_rep = node.copy()
-    node_rep['_id'] = node.id_str
-    if item_levels:
-        node_rep = add_node_rep_items(node, node_rep, item_levels-1)
-    return node_rep
-
-def add_node_rep_items(node, node_rep, item_levels=0):
-    new_node_rep = node_rep.copy()
-    node_items = node.to_
-    new_items = []
-    for item in node_items:
-        item_rep = make_node_rep(item, item_levels)
-        new_items.append(item_rep)
-    if len(new_items) > 0: new_node_rep['items'] = new_items
-    return new_node_rep
 
 @bottle.get('/')
 def index():

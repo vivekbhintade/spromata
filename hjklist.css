@@ -25,9 +25,18 @@ h1 span { display: none; }
     nodisplay: none;
     position: relative;
 }
-#root>.item { display: block; }
+#root>.item {
+    display: block !important;
+    border: 1px solid #151515;
+    border-right: none;
+    box-shadow: 0 0 10px #202020;
+}
 #root>.item>.content { display: none; }
 #root>.item>.items { display: block; }
+#root>.item.selected {
+    border: 1px solid #5bf;
+    box-shadow: 0 0 10px #5bf;
+}
 .item .content {
     padding: 5px 10px;
     border: 1px solid #fefefe;
