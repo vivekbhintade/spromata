@@ -48,7 +48,6 @@ def do_signup(**context):
     session = context['session']
     context['submitted']['username'] = username = bottle.request.forms.get('username') or ''
     context['submitted']['email'] = email = bottle.request.forms.get('email') or ''
-    context['submitted']['agree_terms'] = agree_terms = bottle.request.forms.get('agree_terms') or False
     password = bottle.request.forms.get('password')
     if bottle.request.forms:
         if not username: context['errors'].append("Please enter a username.")

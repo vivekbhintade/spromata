@@ -23,9 +23,9 @@
     $(document).ready(function() {
         $("#signup_form").submit(function(event) {
             clear_errors();
-            if (!$('#username').val()) { add_error("Enter a username.", '#username'); }
+            if (!$('input#username').val()) { add_error("Enter a username.", 'input#username'); }
             if (!valid_email($('#email').val())) { add_error("Enter a valid email address.", '#email'); }
-            if (!$('#password').val()) { add_error("Enter a password.", '#password'); }
+            if (!$('input#password').val()) { add_error("Enter a password.", 'input#password'); }
             if (form_errors) return false;
             $(this).submit();
         });
