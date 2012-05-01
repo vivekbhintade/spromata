@@ -59,7 +59,7 @@ var ItemView = Backbone.View.extend({
     addItem: function(new_item) {
         var new_item_view = new ItemView({model: new_item, parent: this});
         this.children.push(new_item_view);
-        this.$items.append(new_item_view.render()$el);
+        this.$items.append(new_item_view.render().$el);
     },
     render: function() {
         var self = this;
