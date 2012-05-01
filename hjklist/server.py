@@ -67,7 +67,7 @@ def do_signup(**context):
         welcome = nodes.new(name='Welcome to hjklist!')
         user_root.to_ = welcome
 	# send some mail
-        send_mail(user.email, 'qrblender@gmail.com', 'Welcome to hjklist!', 
+        send_mail(user.email, 'hjklist@gmail.com', 'Welcome to hjklist!', 
             'Verify your email address by visiting: %s' % verification_url,
             'Verify your email address by visiting: <a href="%s">%s</a>' % (verification_url, verification_url))
         context['messages'].append("Thank you for signing up. Please check your email for a verification link.")
