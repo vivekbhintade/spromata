@@ -41,7 +41,7 @@ def logout(**context):
         sessions.remove(user=session.user.id)
         bottle.response.delete_cookie("user", secret=config.secret)
         bottle.response.delete_cookie("token", secret=config.secret)
-    return bottle.redirect('/')
+    return bottle.redirect('/login')
 
 show_signup = renderer('signup')
 def do_signup(**context):
@@ -62,13 +62,14 @@ def do_signup(**context):
         verification_code = generate_token(20)
         user = users.new(username=username, password=password, email=email, verification=verification_code)
         verification_url = config.base_url + "/verify?user=%s&code=%s" % (username, verification_code)
+        # Set them up a root node
+        user_root = nodes.new(user=user.id, name='root')
+        welcome = nodes.new(name='Welcome to hjklist!')
+        user_root.to_ = welcome
+	# send some mail
         send_mail(user.email, 'qrblender@gmail.com', 'Welcome to hjklist!', 
             'Verify your email address by visiting: %s' % verification_url,
             'Verify your email address by visiting: <a href="%s">%s</a>' % (verification_url, verification_url))
-        # Set them up a root node
-        root = nodes.new(user=session.user.id, name='root')
-        welcome = nodes.new(name='Welcome to hjklist!')
-        root.to_ = welcome
         context['messages'].append("Thank you for signing up. Please check your email for a verification link.")
         return show_login(**context)
     else:
