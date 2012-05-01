@@ -59,7 +59,7 @@ var ItemView = Backbone.View.extend({
     addItem: function(new_item) {
         var new_item_view = new ItemView({model: new_item, parent: this});
         this.children.push(new_item_view);
-        this.$items.append(new_item_view.render().el);
+        this.$items.append(new_item_view.render()$el);
     },
     render: function() {
         var self = this;
@@ -215,6 +215,21 @@ function move_down(go_inner) {
         }
     }
 }
+function move_far_down(go_inner) {
+    go_inner = typeof go_inner !== 'undefined' ? go_inner : true;
+    if (selectedNode.expanded && go_inner) {
+        move_right();
+        move_far_down();
+    } else {
+        var select_pos = selectedNode.parent.children.indexOf(selectedNode);
+        if ((select_pos + 1) < selectedNode.parent.children.length) {
+            select_node(selectedNode.parent.children[selectedNode.parent.children.length-1]);
+        } else {
+            select_node(selectedNode.parent);
+            move_down(false);
+        }
+    }
+}
 function find_deepest_child(from_node) {
     if (from_node.expanded) {
         return find_deepest_child(_.last(from_node.children));
@@ -230,8 +245,21 @@ function find_up_node(from_node) {
         return from_node.parent;
     }
 }
+function find_far_up_node(from_node) {
+    var select_pos = from_node.parent.children.indexOf(from_node);
+    if ((select_pos) > 0) {
+        var up_node = from_node.parent.children[0];
+        return find_deepest_child(up_node);
+    } else {
+        if (from_node.parent == rootNode) return find_deepest_child(rootNode);
+        return from_node.parent;
+    }
+}
 function move_up() {
     select_node(find_up_node(selectedNode));
+}
+function move_far_up() {
+    select_node(find_far_up_node(selectedNode));
 }
 function move_right() {
     if (selectedNode.expandable) {
@@ -239,9 +267,15 @@ function move_right() {
         else select_node(selectedNode.children[0]);
     }
 }
-function new_node(e) {
+function new_child_node(e) {
     e.preventDefault();
     e.stopPropagation();
+    selectedNode.showNewForm();
+}
+function new_below_node(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    move_left();
     selectedNode.showNewForm();
 }
 function edit_node(e) {
@@ -255,11 +289,14 @@ $(function() {
     //$("body").click(function(e) { return false; });
     $(document).bind('keydown', 'h', move_left);
     $(document).bind('keydown', 'j', move_down);
+    $(document).bind('keydown', 'shift+j', move_far_down);
     $(document).bind('keydown', 'k', move_up);
+    $(document).bind('keydown', 'shift+k', move_far_up);
     $(document).bind('keydown', 'l', move_right);
-    $(document).bind('keydown', 'a', new_node);
+    $(document).bind('keydown', 'a', new_child_node);
+    $(document).bind('keydown', 'o', new_below_node);
     $(document).bind('keydown', 'c', edit_node);
-    $(document).bind('keydown', 'return', new_node);
+    $(document).bind('keydown', 'return', new_child_node);
     $(document).bind('keydown', 'backspace', function(e) {
         if (!$('input:focus').length) {
             e.preventDefault();
