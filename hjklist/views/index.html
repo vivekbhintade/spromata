@@ -1,0 +1,19 @@
+{% extends "base" %}
+{% block extrahead %}
+<script type="text/javascript" src="/js/Markdown.Converter.js"></script>
+<script type="text/javascript" src="hjklist.js"></script>
+{% endblock %}
+{% block content %}
+<div id="root">
+    <script type="text/javascript">
+    $(function() {
+        root = new Item({{ root }});
+        rootNode = new ItemView({model: root});
+        rootNode.parent = rootNode;
+        selectedNode = rootNode;
+        rootNode.expand();
+        $("#root").append(rootNode.render().el);
+    });
+    </script>
+</div>
+{% endblock %}
