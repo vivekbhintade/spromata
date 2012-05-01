@@ -275,8 +275,7 @@ function new_child_node(e) {
 function new_below_node(e) {
     e.preventDefault();
     e.stopPropagation();
-    move_left();
-    selectedNode.showNewForm();
+    selectedNode.parent.showNewForm();
 }
 function edit_node(e) {
     e.preventDefault();
