@@ -14,6 +14,7 @@ def start_context(**context):
     context['errors'] = []
     context['submitted'] = defaultdict(str)
     context['timestamp'] = time.time()
+    context['config'] = config
     return context
 
 def get_session(**context):

@@ -12,6 +12,7 @@ nobody {
     position: relative;
     line-height: 1.2em;
 }
+.item_placeholder { height: 30px; }
 .item h1, .item h2, .item h3, .item h4 { line-height: 1.2em; }
 #root>.item {
     display: block !important;
@@ -38,7 +39,8 @@ nobody {
     padding: 5px 0;
     max-width: 100%;
 }
-.item .items { display: none; padding-left: 20px; }
+.item>.items { padding-left: 20px; }
+.item.expandable>.items { display: none; }
 .item.expandable>.content:before {
     content: "+";
     color: rgba(255,255,255,0.8);

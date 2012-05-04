@@ -1,9 +1,14 @@
 {% extends "base" %}
 {% block extrahead %}
+<script type="text/javascript" src="/js/jquery.ui.core.js"></script>
+<script type="text/javascript" src="/js/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="/js/jquery.ui.mouse.js"></script>
+<script type="text/javascript" src="/js/jquery.ui.draggable.js"></script>
+<script type="text/javascript" src="/js/jquery.ui.sortable.js"></script>
 <script type="text/javascript" src="/js/Markdown.Converter.js"></script>
 <script type="text/javascript" src="hjklist.js"></script>
 {% endblock %}
-{% block content %}
+{% block main %}
 <div id="root">
     <script type="text/javascript">
     $(function() {
@@ -11,8 +16,8 @@
         rootNode = new ItemView({model: root});
         rootNode.parent = rootNode;
         selectedNode = rootNode;
-        rootNode.expand();
         $("#root").append(rootNode.render().el);
+        rootNode.expand();
     });
     </script>
 </div>
