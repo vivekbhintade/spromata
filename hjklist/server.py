@@ -265,7 +265,7 @@ for route in route_map.items():
 # Static fallback
 @bottle.route('/<filepath:path>')
 def static_file(filepath):
-    return bottle.static_file(filepath, root='.')
+    return bottle.static_file(filepath, root='./static/')
 
 # Run the server
 bottle.debug(config.debug)
