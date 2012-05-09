@@ -42,9 +42,9 @@ body {
     overflow: hidden;
 }
 
-#content h2 { font-family: warnock-pro; margin-top: 5px; font-size: 24px; font-weight: normal; color: #333;  margin-bottom: 10px; }
+#content h2 { font-family: warnock; margin-top: 5px; font-size: 24px; font-weight: normal; color: #333;  margin-bottom: 10px; }
 #content h3 { font-weight: normal; font-style: italic; color: #777; margin-bottom: 15px; }
-#content h4 { font-family: warnock-pro; font-size: 14px; color: #444; margin-top: 10px; }
+#content h4 { font-family: warnock; font-size: 14px; color: #444; margin-top: 10px; }
 #content li { list-style: disc; margin-left: 20px; }
 #content #preview {
     float: right;
@@ -136,7 +136,7 @@ button.signup, a.signup {
 }
 a.big_signup {
     display: block;
-    font-family: warnock-pro;
+    font-family: warnock;
     background: #3eae1c;
     background: -webkit-linear-gradient(top, #3eae1c, #32930e);
     background: -moz-linear-gradient(top, #3eae1c, #32930e);
