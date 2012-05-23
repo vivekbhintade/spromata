@@ -1,0 +1,132 @@
+{% extends "base" %}
+{% block extrahead %}
+<script type="text/javascript" src="/js/stripe.js"></script>
+<script type="text/javascript">
+    Stripe.setPublishableKey('{{ config.stripe_public }}');
+    
+    var form_errors = false;
+    function clear_errors() {
+        $('#errors').empty();
+        $('.errored').removeClass('errored');
+        form_errors = false;
+    }
+    function add_error(message, element) {
+        var new_error = $('<p>').addClass('error').html(message);
+        $('#errors').append(new_error);
+        if (element) { $(element).addClass('errored'); }
+        form_errors = true;
+    }
+    function stripeResponseHandler(status, response) {
+        if (response.error) {
+            // reenable the button
+            $("button[type='submit']").removeAttr("disabled");
+            //show the errors on the form
+            if (response.error.param == 'number') add_error(response.error.message, '#card_number');
+            if (response.error.param == 'exp_year') add_error("Your card's expiration year is invalid.", '#card_exp_year');
+            if (response.error.param == 'exp_month') add_error("Your card's expiration month is invalid.", '#card_exp_month');
+            if (response.error.param == 'cvc') add_error(response.error.message, '#card_cvc');
+        } else {
+            var form$ = $("#signup_form");
+            // token contains id, last4, and card type
+            var token = response['id'];
+            // insert the token into the form so it gets submitted to the server
+            form$.append("<input type='hidden' name='stripe_token' value='" + token + "'/>");
+            // and submit
+            form$.get(0).submit();
+        }
+    }
+    
+    function valid_email(email) {
+        var re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[a-zA-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b/;
+        return re.test(email);
+    }
+    var use_payment = true;
+    function hide_payment() {
+        $('#payment').hide();
+        use_payment = false;
+    }
+    function show_payment() {
+        $('#payment').show();
+        use_payment = true;
+    }
+
+    $(document).ready(function() {
+        $("#signup_form").submit(function(event) {
+            // clear old errors
+            clear_errors();
+            // check fields
+            if (!$('#username').val()) { add_error("Enter a username.", '#username'); }
+            if (!valid_email($('#email').val())) { add_error("Enter a valid email address.", '#email'); }
+            if (!$('#password').val()) { add_error("Enter a password.", '#password'); }
+            if (!Stripe.validateCardNumber($('#card_number').val())) { add_error("Enter a valid card number.", '#card_number'); }
+            if (!Stripe.validateExpiry($('#card_exp_month').val(), $('#card_exp_year').val())) { add_error("Enter a valid expiration date.", '.card_exp'); }
+            if (!Stripe.validateCVC($('#card_cvc').val())) { add_error("Enter a valid CVC.", '#card_cvc'); }
+            if (form_errors) return false;
+            if (use_payment) {
+                // disable the submit button to prevent repeated clicks
+                $("button[type='submit']").attr("disabled", "disabled");
+
+                var amount = 0; //amount you want to charge in cents
+                Stripe.createToken({
+                    number: $('.card-number').val(),
+                    cvc: $('.card-cvc').val(),
+                    exp_month: $('.card-expiry-month').val(),
+                    exp_year: $('.card-expiry-year').val()
+                }, amount, stripeResponseHandler);
+
+                // prevent the form from submitting with the default action
+                return false;
+            } else {
+                $(this).submit();
+            }
+        });
+    });
+
+</script>
+{% endblock %}
+{% block title %}<h2>Sign up</h2>{% endblock %}
+{% block content %}
+<h2>Sign up for hjklist</h2>
+<form action='' method='post' id="signup_form">
+    <div class="row clear">
+        <h3>Enter your details</h3>
+    </div>
+    <div class="row clear">
+        <label for='username'>Username</label>
+        <input type='text' id="username" name='username' placeholder='username' value='{{ submitted['username'] }}'/>
+    </div>
+    <div class="row clear">
+        <label for='email'>Email</label>
+        <input type='text' id="email" name='email' placeholder='email' value='{{ submitted['email'] }}'/>
+    </div>
+    <div class="row clear">
+        <label for='password'>Password</label>
+        <input type='password' id="password" name='password' placeholder='password' value='{{ submitted['password'] }}'/>
+    </div>
+    <div id="payment">
+        <div class="row clear">
+            <img class="right" src="/images/cards.png" />
+            <h3>Payment Information</h3>
+        </div>
+        <div class="row clear">
+            <label>Card Number</label>
+            <input type="text" size="20" autocomplete="off" id="card_number" class="card-number"/>
+        </div>
+        <div class="row clear">
+            <label>Security Code (CVC)</label>
+            <input type="text" size="4" autocomplete="off" id="card_cvc" class="card-cvc"/>
+        </div>
+        <div class="row clear">
+            <label>Expiration (MM/YYYY)</label>
+            <div class="group">
+                <input type="text" size="2" id="card_exp_month" class="card_exp card-expiry-month"/>
+                <span> / </span>
+                <input type="text" size="4" id="card_exp_year" class="card_exp card-expiry-year"/>
+            </div>
+        </div>
+    </div>
+    <div class="center">
+        <button class='signup' type='submit'>Sign up</button>
+    </div>
+</form>
+{% endblock %}

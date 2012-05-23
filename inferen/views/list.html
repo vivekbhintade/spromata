@@ -1,0 +1,24 @@
+{% extends "base" %}
+{% block extrahead %}
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="viewport" content="width=device-width, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+<script type="text/javascript" src="/js/jquery-ui.custom.min.js"></script>
+<script type="text/javascript" src="/js/jquery.ui.touch-punch.min.js"></script>
+<script type="text/javascript" src="/js/jquery.infinitedrag.js"></script>
+<script type="text/javascript" src="/js/jquery.plumb.min.js"></script>
+<script type="text/javascript" src="/js/hotkeys.js"></script>
+<script type="text/javascript" src="/js/h.js"></script>
+<script type="text/javascript" src="/js/underscore.js"></script>
+<script type="text/javascript" src="/js/backbone.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/inferen.css" />
+<script type="text/javascript" src="/js/Markdown.Converter.js"></script>
+<script type="text/javascript" src="/js/inferen.js"></script>
+<script type="text/javascript">
+var root_id = "{{ root.id }}";
+</script>
+{% endblock %}
+{% block main %}
+<div id="roots">
+</div>
+<div class="clear"></div>
+{% endblock %}
