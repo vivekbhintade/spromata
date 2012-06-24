@@ -117,5 +117,5 @@ def static_file(filepath):
 
 # Run the server
 bottle.debug(config.debug)
-bottle.run(server=config.server, host='0.0.0.0', port=config.port, reloader=config.debug)
+bottle.run(server=config.server, host=config.host, port=config.port, reloader=config.debug)
 

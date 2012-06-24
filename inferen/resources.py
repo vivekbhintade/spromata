@@ -126,4 +126,4 @@ SoundCloud.resources = {'users': User, 'tracks': Track, 'comments': Comment}
 
 sources = {'soundcloud': SoundCloud}
 
-me = User.get('929224')
+#me = User.get('929224')
