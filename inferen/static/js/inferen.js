@@ -42,9 +42,10 @@ var NodeView = Backbone.View.extend({
         var classes = 'node';
         if (options.classes) classes += ' ' + options.classes;
         if (this.model.get('type')) classes += ' ' + this.model.get('type');
+        console.log("Creating NodeView: " + this.model.id + ' / ' + this.model.id);
         this.el = h(
             'div',
-            {class: classes, id: 'node_'+this.model.get('_id_')},
+            {class: classes, id: 'node_'+this.model.id},
             [
                 h('div', {class: 'actions'}, [
                     h('a', {class: 'add'}, '+'),
@@ -91,7 +92,7 @@ var NodeView = Backbone.View.extend({
     select: function(e) {
         e.preventDefault();
         e.stopPropagation();
-        controller.selectNode(this.model.get('_id_'));
+        controller.selectNode(this.model.id);
     },
     doShowForm: function(e) { e.preventDefault(); e.stopPropagation(); this.showForm(); },
     showForm: function() {
@@ -117,9 +118,10 @@ var ItemView = Backbone.View.extend({
     initialize: function(options) {
         _.bindAll(this);
         if (options.classes) this.classes = options.classes;
+        console.log("Creating ItemView: " + this.model.id + ' / ' + this.model.id);
         this.el = h(
             'div',
-            {id: 'item_'+this.model.get('_id_')},
+            {id: 'item_'+this.model.id},
             [
                 h('div', {class: 'actions'}, [
                     h('a', {class: 'reply', href:'#'}, 'r'),
