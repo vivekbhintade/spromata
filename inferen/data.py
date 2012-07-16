@@ -106,8 +106,8 @@ def make_node_rep(node, item_levels=0):
     node_rep['_id'] = node.id_str
     node_rep['name'] = node.name
     node_rep['type'] = node.type
-    #if node.type == 'topic': item_levels-=1
-    item_levels-=1
+    if node.type == 'topic': item_levels-=1
+    #item_levels-=1
     if item_levels:
         node_rep = add_node_rep_items(node, node_rep, item_levels)
     return node_rep

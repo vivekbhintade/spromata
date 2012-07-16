@@ -115,7 +115,3 @@ for route in route_map.items():
 def static_file(filepath):
     return bottle.static_file(filepath, root='./static/')
 
-# Run the server
-bottle.debug(config.debug)
-bottle.run(server=config.server, host=config.host, port=config.port, reloader=config.debug)
-
