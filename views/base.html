@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+    <title>{{ config.site_title }}</title>
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,700,300' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/underscore.js"></script>
+    <script type="text/javascript" src="/js/backbone.js"></script>
+    <script type="text/javascript" src="/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/js/h.js"></script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="container">
+    <div class="page-header">
+        <div class="pull-right">
+            <a class="btn round" href="/login">Log in</a> or 
+            <a class="btn round" href="/signup">Sign Up</a>
+        </div>
+        <h1><span id="logo"><span>{{ config.site_title }}</span></span> <small>{% block title %}{% endblock %}</small></h1> 
+    </div>
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-info">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    <div class="errors">
+        {% for error in errors %}
+        <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {{ error }}
+        </div>
+        {% endfor %}
+    </div>
+    {% block content %}{% endblock %}
+    <div class="footer">
+        <small class="pull-right">&copy; 2012 {{ config.site_title }}</small>
+    </div>
+</div>
+</body>
+</html>

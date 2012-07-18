@@ -1,0 +1,121 @@
+{% extends "base" %}
+{% block extra_head %}
+<script type="text/javascript" src="/js/admin/dashboard.js"></script>
+<script type="text/javascript">
+var users_json = [{% for user in all_users %}
+    {
+        id: "{{ user.id_str }}",
+        name: "{{ user.name }}",
+        email: "{{ user.email }}",
+        type: "{{ user.type or '' }}",
+        verified: {% if user.verified %}true{% else %}false{% endif %}
+    },
+{% endfor %}];
+var users = new Users();
+
+var products_json = [{% for product in all_products %}
+    {
+        id: "{{ product.id_str }}",
+        name: "{{ product.name }}",
+        description: "{{ product.description }}",
+        category: "{{ product.category }}",
+        preview: "{{ product.preview }}",
+    },
+{% endfor %}];
+var products = new Products();
+</script>
+{% endblock %}
+{% block title %}Admin dashboard{% endblock %}
+{% block content %}
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#users" data-toggle="tab"><i class="icon-user"></i> Users</a></li>
+    <li><a href="#products" data-toggle="tab"><i class="icon-th-large"></i> Products</a></li>
+    <li><a href="#signups" data-toggle="tab"><i class="icon-envelope"></i> Email Signups</a></li>
+</ul>
+
+<div class="tab-content">
+    {# USERS #}
+    <div id="users" class="active tab-pane">
+        <div class="row">
+            <div class="span8">
+                <table id="users_table" class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select_all_users" /></th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Type</th>
+                            <th>Verified</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in all_users %}
+                        <tr class="tr_user" id="tr__user_{{ user.id_str }}">
+                            <td class="user_select"><input type="checkbox" /></td>
+                            <td class="user_name">{{ user.name }}</td>
+                            <td class="user_email">{{ user.email }}</td>
+                            <td class="user_type">{{ user.type or '' }}</td>
+                            <td class="user_verified"><i class="icon-{% if user.verified %}true{% else %}false{% endif %}"></i></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="span4">
+                <div class="well">
+                    <button id="users_verify" class="btn btn-ok">Verify Selected</button>
+                    <button id="users_filter_all" class="btn btn-error">Show All</button>
+                    <button id="users_filter_admin" class="btn btn-error">Show Admins</button>
+                    <button id="users_filter_unverified" class="btn btn-error">Show Unverified</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{# Modal elements #}
+{% for user in all_users %}
+    <div class="modal fade hide" id="modal__user_{{ user.id_str }}">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h3><i class="icon-user"></i> <span class="name">{{ user.name }}</span></h3>
+        </div>
+        <div class="modal-body">
+            <form action="/users/{{ user.id_str }}" method="post" class="form-horizontal">
+                <div class="control-group">
+                    <label class="control-label" for="name">Name</label>
+                    <div class="controls">
+                        <input type="text" class="input-xlarge" name="name" value="{{ user.name }}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="email">Email</label>
+                    <div class="controls">
+                        <input type="text" class="input-xlarge" name="email" value="{{ user.email }}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="type">Type</label>
+                    <div class="controls">
+                        <input type="text" class="input-xlarge" name="type" value="{{ user.type or '' }}" />
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="verified">Verified</label>
+                    <div class="controls">
+                        <input type="checkbox" name="verified" {% if user.verified %}checked{% endif %}/>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="cancel btn" data-dismiss="modal">Cancel</a>
+            <a href="#" class="save btn btn-primary">Save changes</a>
+        </div>
+    </div>
+{% endfor %}
+
+{% endblock %}
