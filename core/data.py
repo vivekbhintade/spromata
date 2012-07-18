@@ -1,6 +1,11 @@
+import sys; sys.stderr.write("LOADING SPROMATA CORE.DATA\n")
+
 from spromata.meta_data import *
 
-class User(Document): pass
+class User(Document):
+    @property
+    def is_admin(self):
+        return self.type == 'admin'
 
 class Users(Collection):
     collection = db.users
@@ -41,6 +46,7 @@ class EmailSignups(Collection):
     type = EmailSignup
 
 users = Users()
+sys.stderr.write("SPROMATA.CORE.DATA - REDEFINE USERS\n")
 sessions = Sessions()
 email_signups = EmailSignups()
 

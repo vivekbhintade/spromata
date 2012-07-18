@@ -4,7 +4,7 @@ from spromata.core.auth import *
 
 @bottle.get('/admin')
 @require_admin
-def dashboard():
+def admin_dashboard():
     all_users = users.fetch()
     bottle.response.context['all_users'] = all_users
     return render('admin/dashboard')

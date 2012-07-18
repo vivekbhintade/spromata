@@ -62,16 +62,13 @@ def login():
         return render('core/login')
     return render('core/login')
 
-def logout(**context):
+@bottle.get('/logout')
+def logout():
+    context = bottle.response.context
     if context['session']:
         session = context['session']
         sessions.remove(user=session.user.id)
         bottle.response.delete_cookie("user", secret=config.session_secret)
         bottle.response.delete_cookie("token", secret=config.session_secret)
     return bottle.redirect('/')
-
-def send_email(email_attrs):
-    posted = requests.post(("https://api.mailgun.net/v2/sasaafrica.mailgun.org/messages"),
-        auth=("api", "key-1h3jll-ukzzvret0rpn9tt6ruapva386"),
-        data=email_attrs)
 

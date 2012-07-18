@@ -38,7 +38,7 @@ class Document(dict):
                 return self.types[key](self.__getitem__(key))
             return self.__getitem__(key)
         if self.types.has_key(key):
-            print "** %s: First time fetch: %s!" % (self, key)
+            #print "** %s: First time fetch: %s!" % (self, key)
             new_ = self.types[key]()
             self.__setitem__(key, new_)
             return self.__getitem__(key)
