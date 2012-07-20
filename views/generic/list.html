@@ -1,0 +1,6 @@
+{% extends "base" %}
+{% block content %}
+{% for item in collection %}
+<li><a href="{{ url_base }}/{{ item.id }}">{{ item.name }}</a></li>
+{% endfor %}
+{% endblock %}

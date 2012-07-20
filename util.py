@@ -1,6 +1,7 @@
 import bottle
 from collections import defaultdict
 import hashlib
+import boto
 import time
 import requests
 import json
@@ -23,11 +24,20 @@ def log(s): sys.stderr.write(str(s).strip() + '\n')
 
 def password_hash(s): return hashlib.sha512(s).hexdigest()
 
-def pymongo_to_json(thing):
+def old_pymongo_to_json(thing):
     return json.dumps(thing, default=bson.json_util.default)
+def pymongo_to_json(thing):
+    def default(obj):
+        if hasattr(obj, 'to_json'):
+            return obj.to_json()
+        if isinstance(obj, oid):
+            return str(obj)
+        return obj
+    return json.dumps(thing, default=default)
 
 class Document(dict):
     types = {}
+    public = []
     private = []
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
@@ -52,12 +62,15 @@ class Document(dict):
     def to_json(self):
         self_copy = self.copy()
         # turn _id into str(id)
-        self_copy['id'] = self.id_str
-        del self_copy['_id']
+        self_copy['_id'] = self.id_str
         # delete private keys
         for a in self.private:
             if self_copy.has_key(a):
                 del self_copy[a]
+        # ensure public keys
+        for a in self.public:
+            if not self_copy.has_key(a):
+                self_copy[a] = getattr(self, a)
         # sterilize other fields
         for k, v in self_copy.items():
             if isinstance(v, oid):
@@ -100,3 +113,15 @@ def make_route_callbacks(b, route_map):
             b.put(path[1:])(callback)
         else:
             b.get(path)(callback)
+
+s3_conn = boto.connect_s3(config.aws_access_key, config.aws_secret_key)
+def upload_to_s3(bucket_name, file, filename=None):
+    bucket = s3_conn.get_bucket(bucket_name)
+    if not filename: filename = file.name
+    timestamp = str(time.time())
+    file_key = bucket.new_key('.'.join([timestamp, filename]));
+    #file_encoded = base64.b64encode(file.read())
+    #file_key.set_contents_from_string(file_encoded)
+    file_key.set_contents_from_file(file)
+    #file_key.make_public()
+    return 'http://%s.s3.amazonaws.com/%s' % (bucket.name, file_key.name)

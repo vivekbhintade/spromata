@@ -1,0 +1,4 @@
+<h1>{{ item.name }}</h1> 
+{% for attr, value in item.items() %}
+<li><strong>{{ attr }}</strong> {{ value }}</li>
+{% endfor %}
