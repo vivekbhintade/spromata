@@ -7,7 +7,7 @@ from spromata.util import *
 # first define the functional elements
 # then the render/response pieces
 # then string them together
-def create_rest_api(base_collection, url_base, restricted=False):
+def create_rest_api(base_collection, url_base, restricted=False, override_={}, post_={}):
     def list_collection(**context):
         collection = base_collection.fetch(**context)
         bottle.response.context.update({'collection': collection})
@@ -65,17 +65,24 @@ def create_rest_api(base_collection, url_base, restricted=False):
         def wrapper(**context):
             print context
             context['user'] = bottle.response.context.user.id
-            return render(template_base + template_map[callback], **callback(**context))
+            cb=callback
+            if override_.has_key(callback.__name__): cb = override_[callback.__name__]
+            result = cb(**context)
+            if post_.has_key(callback.__name__): result = post_[cb.__name__](**result)
+            return render(template_base + template_map[callback], **result)
         if restricted: wrapper = require_auth(wrapper)
         return wrapper
     # Make a JSON version too
     def make_json_callback(callback):
         def wrapper(**context):
             context['user'] = bottle.response.context.user.id
-            result = callback(**context)
-            if isinstance(result, list):
-                return json.dumps([r.to_json() for r in result])
-            return json.dumps(result.to_json())
+            cb=callback
+            if override_.has_key(callback.__name__): cb = override_[callback.__name__]
+            print "CONTEXT: %s" % context
+            result = cb(**context)
+            if post_.has_key(callback.__name__): result = post_[cb.__name__](**result)
+            print "RESULT: %s" % result
+            return pymongo_to_json(result)
         if restricted: wrapper = require_auth(wrapper)
         return wrapper
 

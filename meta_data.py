@@ -10,16 +10,23 @@ mongo_connection = pymongo.Connection(host=config.mongo_host, port=config.mongo_
 mongo_connection._Pool = Pool
 db = mongo_connection[config.mongo_db]
 
+def adj_id(d):
+    if d.has_key('_id'):
+        if not isinstance(d['_id'], oid):
+            d['_id'] = oid(d['_id'])
+
 class Collection(object):
     type = Document
     def fetch(self, **query):
         return [self.type(item) for item in self.collection.find(query)[:]]
-    def adj_id(self, d):
-        if d.has_key('_id'):
-            if isinstance(d['_id'], str):
-                d['_id'] = oid(d['_id'])
+    def search(self, **query):
+        search_query = {}
+        # build regex search from flat query
+        for k, v in query.items():
+            search_query[k] = {'$regex': '%s' % v, '$options': 'i'}
+        return self.fetch(**search_query)
     def get(self, **query):
-        self.adj_id(query)
+        adj_id(query)
         found = self.collection.find_one(query)
         if found:
             return self.type(found)
@@ -34,12 +41,12 @@ class Collection(object):
         data['_id'] = _id
         return self.type(data)
     def update(self, **data):
-        self.adj_id(data)
+        adj_id(data)
         new_data = data.copy()
         del new_data['_id']
         self.collection.update({'_id': data['_id']}, {'$set': new_data})
         return self.get(_id=data['_id'])
     def remove(self, **data):
-        self.adj_id(data)
+        adj_id(data)
         self.collection.remove(data)
 
