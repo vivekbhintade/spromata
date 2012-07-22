@@ -15,15 +15,31 @@ def adj_id(d):
         if not isinstance(d['_id'], oid):
             d['_id'] = oid(d['_id'])
 
+class Results(list): pass
+
 class Collection(object):
     type = Document
     def fetch(self, **query):
-        return [self.type(item) for item in self.collection.find(query)[:]]
+        print "QUERY: %s" % query
+        fetch_query = {}
+        # build regex search from flat query
+        for k, v in query.items():
+            # don't add skip or limit
+            if not k.startswith('_'): fetch_query[k] = v
+        results = self.collection.find(fetch_query)
+        total = results.count()
+        if query.has_key('_skip'): results = results.skip(int(query['_skip']))
+        if query.has_key('_limit'): results = results.limit(int(query['_limit']))
+        results = Results([self.type(item) for item in results])
+        results.total = total
+        return results
     def search(self, **query):
         search_query = {}
         # build regex search from flat query
         for k, v in query.items():
-            search_query[k] = {'$regex': '%s' % v, '$options': 'i'}
+            # don't mess up skip or limit
+            if isinstance(v, str): search_query[k] = {'$regex': '%s' % v, '$options': 'i'}
+            else: search_query[k] = v
         return self.fetch(**search_query)
     def get(self, **query):
         adj_id(query)
