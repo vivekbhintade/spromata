@@ -8,7 +8,7 @@ def spromata_view_dir():
 bottle.TEMPLATE_PATH.append(spromata_view_dir())
 
 def render_jinja2(template, **context):
-    return bottle.template(template, template_adapter=bottle.Jinja2Template, template_settings={'cache_size': 0}, **context)
+    return bottle.template(template, template_adapter=bottle.Jinja2Template, template_settings={'cache_size': 0, 'autoescape':True}, **context)
 
 mustacher = pystache.Renderer(search_dirs=['views'], file_extension='html')
 def render_mustache(template, **context):
