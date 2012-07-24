@@ -1,6 +1,7 @@
 import bottle
 from collections import defaultdict
 import hashlib
+from functools import partial
 import boto
 import math
 import time
