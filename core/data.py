@@ -1,6 +1,7 @@
 from spromata.meta_data import *
 
 class User(Document):
+    private = ['password']
     @property
     def is_admin(self):
         return self.type == 'admin'

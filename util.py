@@ -28,16 +28,33 @@ def log(s): sys.stderr.write(str(s).strip() + '\n')
 
 def password_hash(s): return hashlib.sha512(s).hexdigest()
 
+def send_mail(to_address, from_address, subject, message_text, message_html):
+    print requests.post("https://api.mailgun.net/v2/%s.mailgun.org/messages" % mailgun_api_account, auth=('api', mailgun_api_key), data={
+        'to': to_address,
+        'from': from_address,
+        'subject': subject,
+        'text': message_text,
+        'html': message_html
+    })
+
+def better_default(obj):
+    if isinstance(obj, str): return obj
+    if isinstance(obj, oid): return str(obj)
+    if isinstance(obj, Document): return obj.to_json()
+    if hasattr(obj, 'isoformat'): return obj.isoformat()
+    if isinstance(obj, list):
+        return map(better_default, obj)
+    if isinstance(obj, dict):
+        return dict([(k, better_default(v)) for k,v in obj.items()])
+    #return bson.json_util.default(obj)
+    return obj
 def old_pymongo_to_json(thing):
-    return json.dumps(thing, default=bson.json_util.default)
-def pymongo_to_json(thing):
-    def default(obj):
-        if hasattr(obj, 'to_json'):
-            return obj.to_json()
-        if isinstance(obj, oid):
-            return str(obj)
-        return obj
-    return json.dumps(thing, default=default)
+    return json.dumps(thing, default=better_default)
+def new_pymongo_to_json(thing):
+    if hasattr(thing, 'to_json'): thing = thing.to_json()
+    thing = better_default(thing)
+    return json.dumps(thing)
+pymongo_to_json = new_pymongo_to_json
 
 class Document(dict):
     types = {}
@@ -67,19 +84,20 @@ class Document(dict):
         self_copy = self.copy()
         # turn _id into str(id)
         self_copy['_id'] = self.id_str
-        # delete private keys
-        for a in self.private:
-            if self_copy.has_key(a):
-                del self_copy[a]
+        print "TO JSON: %s" % self_copy
         # ensure public keys
         for a in self.public:
             if not self_copy.has_key(a):
                 self_copy[a] = getattr(self, a)
         # sterilize other fields
+        self_copy_clean = {}
         for k, v in self_copy.items():
-            if isinstance(v, oid):
-                self_copy[k] = str(v)
-        return self_copy
+            self_copy_clean[k] = better_default(v)
+        # delete private keys
+        for a in self.private:
+            if self_copy_clean.has_key(a):
+                del self_copy_clean[a]
+        return self_copy_clean
 
 class Context(Document): pass
 
