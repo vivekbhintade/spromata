@@ -56,11 +56,12 @@ class Collection(object):
         _id = self.collection.insert(data)
         data['_id'] = _id
         return self.type(data)
-    def update(self, **data):
+    def update(self, overwrite=False, **data):
         adj_id(data)
         new_data = data.copy()
         del new_data['_id']
-        self.collection.update({'_id': data['_id']}, {'$set': new_data})
+        if overwrite: self.collection.update({'_id': data['_id']}, new_data)
+        else: self.collection.update({'_id': data['_id']}, {'$set': new_data})
         return self.get(_id=data['_id'])
     def remove(self, **data):
         adj_id(data)
