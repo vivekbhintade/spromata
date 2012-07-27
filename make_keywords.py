@@ -44,6 +44,7 @@ def unescape(text):
         return text # leave as is
     return re.sub("&#?\w+;", fixup, text)
 
-def encode(text): return unicode(text)
+def encode(text):
+    return unicode(text)
 
 keywordify = composer(goodwords, stemmer.stemWords, wordify, unescape, encode)

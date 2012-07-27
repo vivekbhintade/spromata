@@ -1,7 +1,7 @@
 import gensim
 from spromata.make_keywords import *
 
-def make_lsi_search(documents, d2t=keywordify, sd2t=keywordify, num_topics=100):
+def make_lsi_search(documents, d2t=keywordify, sd2t=keywordify, num_topics=250):
     texts = map(d2t, documents)
     print "TEXTS: %s" % texts[:5]
     all_tokens = sum(texts, [])
