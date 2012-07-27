@@ -37,4 +37,4 @@ def make_lsi_search(documents, d2t=keywordify, sd2t=keywordify, num_topics=100):
         return sim_docs
     return search
 
-me_chat_documents = filter(None, map(lambda d: d.strip(), open('/Users/sean/all_from_me.txt').readlines()))
+#me_chat_documents = filter(None, map(lambda d: d.strip(), open('/Users/sean/all_from_me.txt').readlines()))
