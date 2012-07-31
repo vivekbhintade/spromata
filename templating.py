@@ -1,4 +1,4 @@
-from spromata.util import *
+from util import *
 import config
 from jinja2 import Environment, FunctionLoader, ChoiceLoader, FileSystemLoader
 import pystache

@@ -136,7 +136,7 @@ def make_route_callbacks(b, route_map):
         else:
             b.get(path)(callback)
 
-s3_conn = boto.connect_s3(config.aws_access_key, config.aws_secret_key)
+if hasattr(config, 'aws_access_key'): s3_conn = boto.connect_s3(config.aws_access_key, config.aws_secret_key)
 def upload_to_s3(bucket_name, file, filename=None):
     bucket = s3_conn.get_bucket(bucket_name)
     if not filename: filename = file.name

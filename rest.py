@@ -1,8 +1,8 @@
 import bottle
 from functools import partial
-from spromata.core.auth import *
-from spromata.templating import *
-from spromata.util import *
+from core.auth import *
+from templating import *
+from util import *
 
 # first define the functional elements
 # then the render/response pieces
