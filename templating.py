@@ -1,13 +1,36 @@
 from util import *
 import config
-from jinja2 import Environment, FunctionLoader, ChoiceLoader, FileSystemLoader
+from jinja2 import Environment, BaseLoader, TemplateNotFound
 import pystache
 
 def spromata_view_dir():
     return os.path.join(spromata_root(), 'views')
 bottle.TEMPLATE_PATH.append(spromata_view_dir())
+VIEW_DIR = spromata_view_dir()
+
+class ReloadingLoader(BaseLoader):
+    def get_source(self, environment, template_name):
+        if len(template_name.split('.'))<2: template_name += '.html'
+        filepath = os.path.join('views', template_name)
+        if not os.path.exists(filepath): filepath = os.path.join(SPROMATA_VIEW_DIR, template_name)
+        if not os.path.exists(filepath): raise TemplateNotFound(template_name)
+        f = open(filepath)
+        contents = f.read()
+        f.close()
+        mtime = os.path.getmtime(filepath)
+        def uptodate():
+            try: return os.path.getmtime(filepath) == mtime
+            except: return False
+        return contents, filepath, uptodate
+
+def timestamp_to_nicedate(timestamp):
+    return datetime.datetime.fromtimestamp(timestamp).strftime("%b %d, %Y @ %I:%M %p")
+jinja2_filters = {'to_nicedate': timestamp_to_nicedate}
+jinja2_env = Environment(loader=ReloadingLoader())
+jinja2_env.filters.update(**jinja2_filters)
 
 def render_jinja2(template, **context):
+    return jinja2_env.get_template(template).render(**context)
     return bottle.template(template, template_adapter=bottle.Jinja2Template, template_settings={'cache_size': 0, 'autoescape':True}, **context)
 
 mustacher = pystache.Renderer(search_dirs=['views'], file_extension='html')
