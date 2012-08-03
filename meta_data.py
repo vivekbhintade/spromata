@@ -24,9 +24,17 @@ class Collection(object):
         fetch_query = {}
         # build regex search from flat query
         for k, v in query.items():
-            # don't add skip or limit
+            # don't add options
             if not k.startswith('_'): fetch_query[k] = v
-        results = self.collection.find(fetch_query)
+        if query.has_key('_include'):
+            fields = dict([(f, 1) for f in query['_include']])
+            results = self.collection.find(fetch_query, fields)
+        elif query.has_key('_exclude'):
+            fields = dict([(f, 0) for f in query['_exclude']])
+            del query['_exclude']
+            results = self.collection.find(fetch_query, fields)
+        else:
+            results = self.collection.find(fetch_query)
         total = results.count()
         if query.has_key('_skip'): results = results.skip(int(query['_skip']))
         if query.has_key('_limit'): results = results.limit(int(query['_limit']))
@@ -43,7 +51,16 @@ class Collection(object):
         return self.fetch(**search_query)
     def get(self, **query):
         adj_id(query)
-        found = self.collection.find_one(query)
+        if query.has_key('_include'):
+            fields = dict([(f, 1) for f in query['_include']])
+            del query['_include']
+            found = self.collection.find_one(query, fields)
+        elif query.has_key('_exclude'):
+            fields = dict([(f, 0) for f in query['_exclude']])
+            del query['_exclude']
+            found = self.collection.find_one(query, fields)
+        else: 
+            found = self.collection.find_one(query)
         if found:
             return self.type(found)
         else:

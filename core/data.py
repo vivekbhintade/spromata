@@ -3,8 +3,9 @@ from spromata.meta_data import *
 class User(Document):
     private = ['password']
     @property
-    def is_admin(self):
-        return self.type == 'admin'
+    def first_name(self): return self.name.split(' ')[0]
+    @property
+    def is_admin(self): return self.type == 'admin'
 
 class Users(Collection):
     collection = db.users

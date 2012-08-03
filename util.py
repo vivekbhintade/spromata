@@ -3,6 +3,7 @@ from collections import defaultdict
 import hashlib
 from functools import partial
 import boto
+import boto.ses
 import math
 import time
 import requests
@@ -28,7 +29,7 @@ def log(s): sys.stderr.write(str(s).strip() + '\n')
 
 def password_hash(s): return hashlib.sha512(s).hexdigest()
 
-def send_mail(to_address, from_address, subject, message_text, message_html):
+def send_mailgun_mail(to_address, from_address, subject, message_text, message_html):
     print requests.post("https://api.mailgun.net/v2/%s.mailgun.org/messages" % mailgun_api_account, auth=('api', mailgun_api_key), data={
         'to': to_address,
         'from': from_address,
@@ -36,6 +37,12 @@ def send_mail(to_address, from_address, subject, message_text, message_html):
         'text': message_text,
         'html': message_html
     })
+
+if hasattr(config, 'aws_access_key'): ses_conn = boto.ses.SESConnection(config.aws_access_key, config.aws_secret_key)
+def send_ses_mail(to_address, from_address, subject, message_text, message_html=None):
+    return ses_conn.send_email(from_address, subject, message_text, to_address, html_body=message_html)
+
+send_mail = send_ses_mail
 
 def better_default(obj):
     if isinstance(obj, str): return obj
