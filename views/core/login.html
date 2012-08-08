@@ -1,9 +1,19 @@
+{% set page_title = "Log in" %}
 {% extends "base" %}
 {% block title %}Log in{% endblock %}
 {% block content %}
-<form action='/login' method='post' class='form-inline'>
-    <input type="text" class="input-xlarge" name="email" id="email" placeholder="Email" />
-    <input type="password" class="input-xlarge" name="password" id="password" placeholder="Password" />
-    <button class="btn btn-primary" type="submit">Log in</button>
-</form>
+<h1>Log in</h1>
+<div class="row">
+    <div class="span8">
+        <form action='/login' method='post' class='form-inline'>
+            <input type="text" class="" name="username" id="username" placeholder="Username" />
+            <input type="password" class="" name="password" id="password" placeholder="Password" />
+            <button class="btn btn-primary" type="submit">Log in</button>
+        </form>
+    </div>
+    <div class="span4">
+        <div class="well">Forgot your password? <a href="/forgot">Reset it here</a>.</div>
+        <div class="well">Don't have an account yet? <a href="/signup">Sign up here</a>.</div>
+    </div>
+</div>
 {% endblock %}

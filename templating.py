@@ -6,7 +6,7 @@ import pystache
 def spromata_view_dir():
     return os.path.join(spromata_root(), 'views')
 bottle.TEMPLATE_PATH.append(spromata_view_dir())
-VIEW_DIR = spromata_view_dir()
+SPROMATA_VIEW_DIR = spromata_view_dir()
 
 class ReloadingLoader(BaseLoader):
     def get_source(self, environment, template_name):
