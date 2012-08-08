@@ -18,7 +18,6 @@ def update_user(user_id):
     user = users.get(_id=user_id)
     new_user_raw = bottle.request.json
     new_user = filter_dict(new_user_raw, ['name', 'email', 'type', 'verified'])
-    new_user['verified'] = True if new_user['verified']==True else False
     if user and new_user:
         user.update(new_user)
         users.update(**user)
