@@ -25,6 +25,7 @@ class ReloadingLoader(BaseLoader):
 
 def timestamp_to_nicedate(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).strftime("%b %d, %Y @ %I:%M %p")
+from BeautifulSoup import BeautifulSoup
 def removeTags(html):
     soup = BeautifulSoup(html)
     for tag in ['a','script','link','div','form']:
