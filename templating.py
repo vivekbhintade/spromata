@@ -27,8 +27,9 @@ class ReloadingLoader(BaseLoader):
 def timestamp_to_nicedate(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).strftime("%b %d, %Y @ %I:%M %p")
 def remove_html_tags(data):
+    if not data: return ''
     p = re.compile(r'<.*?>')
-    return p.sub('', data)
+    return p.sub('', data.encode('latin1').decode('utf8','ignore'))
 jinja2_filters = {
     'to_nicedate': timestamp_to_nicedate,
     'sanitize': remove_html_tags
