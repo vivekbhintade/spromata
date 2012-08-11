@@ -33,7 +33,7 @@ def removeTags(html):
     return str(soup)
 jinja2_filters = {
     'to_nicedate': timestamp_to_nicedate,
-    'sanitize': strip_tags
+    'sanitize': removeTags
 }
 jinja2_env = Environment(loader=ReloadingLoader())
 jinja2_env.filters.update(**jinja2_filters)
