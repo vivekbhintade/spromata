@@ -1,6 +1,6 @@
 from util import *
 import config
-from jinja2 import Environment, BaseLoader, TemplateNotFound
+from jinja2 import Environment, BaseLoader, TemplateNotFound, Markup
 import pystache
 
 def spromata_view_dir():
@@ -25,9 +25,26 @@ class ReloadingLoader(BaseLoader):
 
 def timestamp_to_nicedate(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).strftime("%b %d, %Y @ %I:%M %p")
-jinja2_filters = {'to_nicedate': timestamp_to_nicedate}
+from HTMLParser import HTMLParser
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data().replace('\\', '')
+jinja2_filters = {
+    'to_nicedate': timestamp_to_nicedate,
+    'sanitize': strip_tags
+}
 jinja2_env = Environment(loader=ReloadingLoader())
 jinja2_env.filters.update(**jinja2_filters)
+
 
 def render_jinja2(template, **context):
     return jinja2_env.get_template(template).render(**context)
