@@ -1,5 +1,6 @@
 from util import *
 import config
+import re
 from jinja2 import Environment, BaseLoader, TemplateNotFound, Markup
 import pystache
 
@@ -25,16 +26,12 @@ class ReloadingLoader(BaseLoader):
 
 def timestamp_to_nicedate(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).strftime("%b %d, %Y @ %I:%M %p")
-from BeautifulSoup import BeautifulSoup
-def removeTags(html):
-    soup = BeautifulSoup(html)
-    for tag in ['a','script','link','div','form']:
-        for tag in soup.findAll(tag):
-            tag.replaceWith("")
-    return str(soup)
+def remove_html_tags(data):
+    p = re.compile(r'<.*?>')
+    return p.sub('', data)
 jinja2_filters = {
     'to_nicedate': timestamp_to_nicedate,
-    'sanitize': removeTags
+    'sanitize': remove_html_tags
 }
 jinja2_env = Environment(loader=ReloadingLoader())
 jinja2_env.filters.update(**jinja2_filters)
