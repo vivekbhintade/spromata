@@ -145,10 +145,11 @@ def make_route_callbacks(b, route_map):
 
 if hasattr(config, 'aws_access_key'): s3_conn = boto.connect_s3(config.aws_access_key, config.aws_secret_key)
 def s3_url(bucket_name, file_name):
-    return 'http://%s.s3.amazonaws.com/%s' % (bucket_name, file_name)
+    return ('http://%s.s3.amazonaws.com/%s' % (bucket_name, file_name)).lower()
 def upload_to_s3(bucket_name, file, filename=None):
     bucket = s3_conn.get_bucket(bucket_name)
     if not filename: filename = file.name.split('/')[-1]
+    filename = filename.lower()
     file_key = bucket.new_key(filename);
     #file_encoded = base64.b64encode(file.read())
     #file_key.set_contents_from_string(file_encoded)
