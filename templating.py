@@ -29,7 +29,14 @@ def timestamp_to_nicedate(timestamp):
 def remove_html_tags(data):
     if not data: return ''
     p = re.compile(r'<.*?>')
-    return p.sub('', data.encode('utf-8').decode('utf-8','replace'))
+    try:
+        d = p.sub('', data.encode('latin1').decode('utf8'))
+        print "GOING 1"
+    except:
+        d = p.sub('', data.encode('utf8', 'ignore').decode('utf8'))
+        print "GOING 2"
+    d = d.replace('\\', '')
+    return d
 jinja2_filters = {
     'to_nicedate': timestamp_to_nicedate,
     'sanitize': remove_html_tags
@@ -40,7 +47,10 @@ jinja2_env.filters.update(**jinja2_filters)
 
 def render_jinja2(template, **context):
     return jinja2_env.get_template(template).render(**context)
-    return bottle.template(template, template_adapter=bottle.Jinja2Template, template_settings={'cache_size': 0, 'autoescape':True}, **context)
+    print "LETS RENDER"
+    rendered = bottle.template(template, template_adapter=bottle.Jinja2Template, template_settings={'cache_size': 0, 'autoescape':True}, **context)
+    print "YEA RENDERING"
+    return rendered
 
 mustacher = pystache.Renderer(search_dirs=['views'], file_extension='html')
 def render_mustache(template, **context):
