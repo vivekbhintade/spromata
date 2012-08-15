@@ -94,7 +94,9 @@ class Document(dict):
         print "TO JSON: %s" % self_copy
         # ensure public keys
         for a in self.public:
-            if not self_copy.has_key(a):
+            if isinstance(a, tuple):
+                self_copy[a[0]] = getattr(self, a[1])
+            elif isinstance(a, str):
                 self_copy[a] = getattr(self, a)
         # sterilize other fields
         self_copy_clean = {}
@@ -105,6 +107,8 @@ class Document(dict):
             if self_copy_clean.has_key(a):
                 del self_copy_clean[a]
         return self_copy_clean
+    def to_json_str(self):
+        return json.dumps(self.to_json())
 
 class Context(Document): pass
 
