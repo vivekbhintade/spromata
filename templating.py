@@ -26,6 +26,8 @@ class ReloadingLoader(BaseLoader):
 
 def timestamp_to_nicedate(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).strftime("%b %d, %Y @ %I:%M %p")
+def timestamp_to_prettydate(timestamp):
+    return pretty_date(timestamp)
 def remove_html_tags(data):
     if not data: return ''
     p = re.compile(r'<.*?>')
@@ -39,11 +41,11 @@ def remove_html_tags(data):
     return d
 jinja2_filters = {
     'to_nicedate': timestamp_to_nicedate,
-    'sanitize': remove_html_tags
+    'to_prettydate': timestamp_to_prettydate,
+    'sanitize': remove_html_tags,
 }
 jinja2_env = Environment(loader=ReloadingLoader())
 jinja2_env.filters.update(**jinja2_filters)
-
 
 def render_jinja2(template, **context):
     return jinja2_env.get_template(template).render(**context)
