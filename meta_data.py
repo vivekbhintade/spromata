@@ -20,7 +20,7 @@ class Results(list): pass
 class Collection(object):
     type = Document
     def fetch(self, **query):
-        print "QUERY: %s" % query
+        #print "QUERY: %s" % query
         fetch_query = {}
         # build regex search from flat query
         for k, v in query.items():
@@ -36,6 +36,13 @@ class Collection(object):
         else:
             results = self.collection.find(fetch_query)
         total = results.count()
+        if query.has_key('_sort'):
+            sort_key = query['_sort']
+            sort_dir = 1
+            if sort_key.startswith('-'):
+                sort_key = sort_key[1:]
+                sort_dir = -1
+            results = results.sort(sort_key, sort_dir)
         if query.has_key('_skip'): results = results.skip(int(query['_skip']))
         if query.has_key('_limit'): results = results.limit(int(query['_limit']))
         results = Results([self.type(item) for item in results])
@@ -46,7 +53,7 @@ class Collection(object):
         # build regex search from flat query
         for k, v in query.items():
             # don't mess up skip or limit
-            if isinstance(v, str): search_query[k] = {'$regex': '%s' % v, '$options': 'i'}
+            if not k.startswith('_') and isinstance(v, str): search_query[k] = {'$regex': '%s' % v, '$options': 'i'}
             else: search_query[k] = v
         return self.fetch(**search_query)
     def get(self, **query):
