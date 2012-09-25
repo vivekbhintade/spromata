@@ -76,7 +76,6 @@ class Document(dict):
                 return self.types[key](self.__getitem__(key))
             return self.__getitem__(key)
         if self.types.has_key(key):
-            #print "** %s: First time fetch: %s!" % (self, key)
             new_ = self.types[key]()
             self.__setitem__(key, new_)
             return self.__getitem__(key)
@@ -91,7 +90,7 @@ class Document(dict):
         self_copy = self.copy()
         # turn _id into str(id)
         self_copy['_id'] = self.id_str
-        print "TO JSON: %s" % self_copy
+        #print "TO JSON: %s" % self_copy
         # ensure public keys
         for a in self.public:
             if isinstance(a, tuple):
