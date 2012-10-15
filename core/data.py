@@ -5,6 +5,8 @@ class User(Document):
     @property
     def first_name(self): return self.name.split(' ')[0]
     @property
+    def last_name(self): return ' '.join(self.name.split(' ')[1:])
+    @property
     def is_admin(self): return self.type == 'admin'
 
 class Users(Collection):

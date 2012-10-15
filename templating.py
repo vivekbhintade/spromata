@@ -28,21 +28,23 @@ def timestamp_to_nicedate(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).strftime("%b %d, %Y @ %I:%M %p")
 def timestamp_to_prettydate(timestamp):
     return pretty_date(timestamp)
-def remove_html_tags(data):
+def sanitize_text(data):
     if not data: return ''
     p = re.compile(r'<.*?>')
+    d = data
     try:
-        d = p.sub('', data.encode('latin1').decode('utf8'))
-        print "GOING 1"
+        #print "GOING 1"
+        d = d.encode('latin1').decode('utf8')
     except:
-        d = p.sub('', data.encode('utf8', 'ignore').decode('utf8'))
-        print "GOING 2"
+        #print "GOING 2"
+        d = d.encode('utf8', 'ignore').decode('utf8')
+    d = p.sub('', d)
     d = d.replace('\\', '')
     return d
 jinja2_filters = {
     'to_nicedate': timestamp_to_nicedate,
     'to_prettydate': timestamp_to_prettydate,
-    'sanitize': remove_html_tags,
+    'sanitize': sanitize_text,
 }
 jinja2_env = Environment(loader=ReloadingLoader())
 jinja2_env.filters.update(**jinja2_filters)
