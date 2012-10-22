@@ -1,12 +1,14 @@
+import pytz
+from datetime import datetime
 def pretty_date(time=False):
     """
     Get a datetime object or a int() Epoch timestamp and return a
     pretty string like 'an hour ago', 'Yesterday', '3 months ago',
     'just now', etc
     """
-    from datetime import datetime
-    now = datetime.now()
+    now = datetime.now(pytz.utc)
     if type(time) in (int, float):
+        now = datetime.now()
         diff = now - datetime.fromtimestamp(time)
     elif isinstance(time,datetime):
         diff = now - time 
@@ -19,6 +21,8 @@ def pretty_date(time=False):
         return ''
 
     if day_diff == 0:
+        if second_diff == 0:
+            return "literally right this second"
         if second_diff < 10:
             return "just now"
         if second_diff < 60:
