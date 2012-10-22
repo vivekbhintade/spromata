@@ -6,14 +6,16 @@ def pretty_date(time=False):
     pretty string like 'an hour ago', 'Yesterday', '3 months ago',
     'just now', etc
     """
-    now = datetime.now(pytz.utc)
     if type(time) in (int, float):
         now = datetime.now()
         diff = now - datetime.fromtimestamp(time)
     elif isinstance(time,datetime):
+        if not time.tzname():
+            time = pytz.utc.localize(time)
+        now = datetime.now(pytz.utc)
         diff = now - time 
     elif not time:
-        diff = now - now
+        diff = 0
     second_diff = diff.seconds
     day_diff = diff.days
 
