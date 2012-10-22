@@ -25,7 +25,7 @@ class Collection(object):
         # build regex search from flat query
         for k, v in query.items():
             # don't add options
-            if not k.startswith('_'): fetch_query[k] = v
+            if k=='_id' or not k.startswith('_'): fetch_query[k] = v
         if query.has_key('_include'):
             fields = dict([(f, 1) for f in query['_include']])
             results = self.collection.find(fetch_query, fields)
