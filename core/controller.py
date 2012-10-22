@@ -31,6 +31,7 @@ def signup():
     context['submitted']['name'] = name = bottle.request.forms.get('name')
     context['submitted']['email'] = email = bottle.request.forms.get('email')
     context['submitted']['password'] = password = bottle.request.forms.get('password')
+    email = email.lower()
     if not name: context['errors'].append("Please enter your name.")
     if not email: context['errors'].append("Please enter your email address.")
     elif users.exists(email=email): context['errors'].append("This email address is already in use!")
@@ -51,6 +52,7 @@ def signup():
 def login():
     bottle.response.context['submitted']['email'] = email = bottle.request.forms.get('email')
     bottle.response.context['submitted']['password'] = password = bottle.request.forms.get('password')
+    email = email.lower()
     if email and password:
         user = users.auth(email, password_hash(password))
         if user:
