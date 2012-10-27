@@ -121,7 +121,7 @@ def start_context():
     context['errors'] = []
     context['config'] = config
     context['submitted'] = Document()
-    context['timestamp'] = time.mktime(datetime.utcnow().timetuple())
+    context['timestamp'] = time.mktime(datetime.datetime.utcnow().timetuple())
     return context
 
 def google_image_search(s):

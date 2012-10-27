@@ -1,5 +1,5 @@
-import pytz
-from datetime import datetime
+import datetime, pytz
+
 def pretty_date(time=False):
     """
     Get a datetime object or a int() Epoch timestamp and return a
@@ -7,12 +7,12 @@ def pretty_date(time=False):
     'just now', etc
     """
     if type(time) in (int, float):
-        now = datetime.now()
-        diff = now - datetime.fromtimestamp(time)
-    elif isinstance(time,datetime):
+        now = datetime.datetime.now()
+        diff = now - datetime.datetime.fromtimestamp(time)
+    elif isinstance(time,datetime.datetime):
         if not time.tzname():
             time = pytz.utc.localize(time)
-        now = datetime.now(pytz.utc)
+        now = datetime.datetime.now(pytz.utc)
         diff = now - time 
     elif not time:
         diff = 0
