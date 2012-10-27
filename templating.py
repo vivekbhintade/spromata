@@ -37,9 +37,12 @@ def sanitize_text(data):
         d = d.encode('latin1').decode('utf8')
     except:
         #print "GOING 2"
-        d = d.encode('utf8', 'ignore').decode('utf8')
+        d = d.encode('latin1', 'ignore').decode('utf8')
+        #d = d.encode('utf8', 'ignore').decode('utf8')
     d = p.sub('', d)
     d = d.replace('\\', '')
+    d = d.replace('>', '')
+    d = d.replace('<', '')
     return d
 jinja2_filters = {
     'to_nicedate': timestamp_to_nicedate,
