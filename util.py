@@ -18,6 +18,7 @@ import urllib
 import sys
 import os
 from spromata.utils.pretty_date import *
+from spromata.utils.make_keywords import *
 
 import config
 def spromata_root(): return os.path.dirname(__file__)
@@ -86,6 +87,9 @@ class Document(dict):
     @property
     def id_str(self):
         return str(self['_id']) if self.has_key('_id') else ''
+    @property
+    def created_at(self):
+        return self.id.generation_time
     def to_json(self):
         self_copy = self.copy()
         # turn _id into str(id)
@@ -107,7 +111,7 @@ class Document(dict):
                 del self_copy_clean[a]
         return self_copy_clean
     def to_json_str(self):
-        return json.dumps(self.to_json())
+        return json.dumps(self.to_json(), ensure_ascii=False)
 
 class Context(Document): pass
 
@@ -117,7 +121,7 @@ def start_context():
     context['errors'] = []
     context['config'] = config
     context['submitted'] = Document()
-    context['timestamp'] = time.time()
+    context['timestamp'] = time.mktime(datetime.datetime.utcnow().timetuple())
     return context
 
 def google_image_search(s):
