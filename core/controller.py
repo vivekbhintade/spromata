@@ -82,3 +82,49 @@ def logout():
         bottle.response.delete_cookie("token", secret=config.session_secret)
     return bottle.redirect('/')
 
+@bottle.get('/forgot')
+def show_forgot():
+    return render('core/forgot')
+
+@bottle.post('/forgot')
+def setup_forgot():
+    bottle.response.context['submitted']['username'] = username = bottle.request.forms.get('username')
+    bottle.response.context['submitted']['email'] = email = bottle.request.forms.get('email')
+    if username and email:
+        user = users.get(username=username, email=email)
+        if user:
+            token = generate_token(10)
+            user['reset_token'] = password_hash(token)
+            reset_link = "%s/forgot/%s" % (config.base_url, token)
+            users.update(**user)
+            bottle.response.context['reset_link'] = reset_link
+            bottle.response.context['forgotten_user'] = user
+            email_text = render("emails/forgot.txt")
+            email_html = render("emails/forgot.html")
+            send_mail(user.email, config.from_email, "Reset your %s password" % config.site_title, email_text, email_html)
+            bottle.response.context['messages'].append("An email with instructions to reset your password has been sent to <strong>%s</strong>." % user.email)
+            return render("core/login")
+    bottle.response.context['errors'].append("Invalid username or email.")
+    return render('core/forgot')
+
+@bottle.get('/forgot/<reset_token:re:[a-zA-Z0-9]+>')
+def show_reset(reset_token):
+    return render('core/reset')
+
+@bottle.post('/forgot/<reset_token:re:[a-zA-Z0-9]+>')
+def do_reset(reset_token):
+    bottle.response.context['submitted']['username'] = username = bottle.request.forms.get('username')
+    bottle.response.context['submitted']['email'] = email = bottle.request.forms.get('email')
+    bottle.response.context['submitted']['password'] = password = bottle.request.forms.get('password')
+    if username and email and password:
+        user = users.get(username=username, email=email)
+        if user:
+            if user.reset_token == password_hash(reset_token):
+                user['password'] = password_hash(password)
+                del user['reset_token']
+                users.update(**user)
+                bottle.response.context['messages'].append("Successfully changed your password.")
+                return render('core/login')
+    bottle.response.context['errors'].append("Unable to verify account.")
+    return render('core/reset')
+
