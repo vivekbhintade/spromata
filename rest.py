@@ -63,7 +63,7 @@ def create_rest_api(base_collection, url_base, restricted=False, override_={}, p
     def make_templated_callback(callback):
         template_base = 'generic/'
         def wrapper(**context):
-            print context
+            #print context
             context['user'] = bottle.response.context.user.id
             cb=callback
             if override_.has_key(callback.__name__): cb = override_[callback.__name__]
@@ -78,10 +78,10 @@ def create_rest_api(base_collection, url_base, restricted=False, override_={}, p
             context['user'] = bottle.response.context.user.id
             cb=callback
             if override_.has_key(callback.__name__): cb = override_[callback.__name__]
-            print "CONTEXT: %s" % context
+            #print "CONTEXT: %s" % context
             result = cb(**context)
             if post_.has_key(callback.__name__): result = post_[cb.__name__](**result)
-            print "RESULT: %s" % result
+            #print "RESULT: %s" % result
             return pymongo_to_json(result)
         if restricted: wrapper = require_auth(wrapper)
         return wrapper
