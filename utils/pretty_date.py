@@ -15,7 +15,8 @@ def pretty_date(time=False):
         now = datetime.datetime.now(pytz.utc)
         diff = now - time 
     else:
-        diff = now - now
+        diff = -1
+        return "unknown"
     second_diff = diff.seconds
     day_diff = diff.days
 
