@@ -121,7 +121,8 @@ def start_context():
     context['errors'] = []
     context['config'] = config
     context['submitted'] = Document()
-    context['timestamp'] = time.mktime(datetime.datetime.utcnow().timetuple())
+    context['now'] = datetime.datetime.now(pytz.utc)
+    context['timestamp'] = time.mktime(datetime.datetime.now(pytz.utc).timetuple())
     return context
 
 def google_image_search(s):
@@ -153,13 +154,16 @@ def make_route_callbacks(b, route_map):
 if hasattr(config, 'aws_access_key'): s3_conn = boto.connect_s3(config.aws_access_key, config.aws_secret_key)
 def s3_url(bucket_name, file_name):
     return ('http://%s.s3.amazonaws.com/%s' % (bucket_name, file_name)).lower()
-def upload_to_s3(bucket_name, file, filename=None):
+def upload_to_s3(bucket_name, file, filename=None, metadata={}):
     bucket = s3_conn.get_bucket(bucket_name)
     if not filename: filename = file.name.split('/')[-1]
     filename = filename.lower()
     file_key = bucket.new_key(filename);
     #file_encoded = base64.b64encode(file.read())
     #file_key.set_contents_from_string(file_encoded)
+    for k, v in metadata.items():
+        print 'Setting: %s, %s' % (k, v)
+        file_key.set_metadata(k, v)
     file_key.set_contents_from_file(file)
     #file_key.make_public()
     return s3_url(bucket.name, file_key.name)
