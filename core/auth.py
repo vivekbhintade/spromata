@@ -1,5 +1,5 @@
 from spromata.util import *
-from spromata.core.data import *
+from core.data import *
 
 def is_auth():
     context = bottle.response.context
