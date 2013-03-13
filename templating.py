@@ -26,6 +26,8 @@ class ReloadingLoader(BaseLoader):
 
 def timestamp_to_nicedate(timestamp):
     return datetime.datetime.fromtimestamp(timestamp).strftime("%b %d, %Y @ %I:%M %p")
+def timestamp_to_local_date(time):
+    return local_date(time)
 def timestamp_to_prettydate(timestamp):
     return pretty_date(timestamp)
 def sanitize_text(data):
@@ -47,6 +49,7 @@ def sanitize_text(data):
     return d
 jinja2_filters = {
     'to_nicedate': timestamp_to_nicedate,
+    'to_local_date': timestamp_to_local_date,
     'to_prettydate': timestamp_to_prettydate,
     'sanitize': sanitize_text,
 }
