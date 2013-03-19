@@ -5,6 +5,14 @@ def is_auth():
     context = bottle.response.context
     return context['session'] and context['user']
 
+def require_is(is_type):
+    def meta_wrapper(f):
+        def wrapper(*args, **kwargs):
+            if (is_auth() and bottle.response.context.user.type == is_type): return f(*args, **kwargs)
+            return bottle.redirect('/login?next=%s' % bottle.request.path)
+        return wrapper
+    return meta_wrapper
+
 def require_auth(f):
     def wrapper(*args, **kwargs):
         if is_auth(): return f(*args, **kwargs)
@@ -30,7 +38,7 @@ def add_session(context):
         session = sessions.get(user=session_user, token=session_token)
         if session:
             context['session'] = session
-            context['user'] = session.user
+            context['user'] = session.user.typed()
             return context
     return context
 

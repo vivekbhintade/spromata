@@ -8,6 +8,8 @@ class User(Document):
     def last_name(self): return ' '.join(self.name.split(' ')[1:])
     @property
     def is_admin(self): return self.type == 'admin'
+    @property
+    def typed(self): return self # TODO: this is just filler right now
 
 class Users(Collection):
     collection = db.users
