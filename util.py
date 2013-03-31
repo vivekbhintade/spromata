@@ -30,14 +30,15 @@ def log(s): sys.stderr.write(str(s).strip() + '\n')
 
 def password_hash(s): return hashlib.sha512(s).hexdigest()
 
-def send_mailgun_mail(to_address, from_address, subject, message_text, message_html):
-    print requests.post("https://api.mailgun.net/v2/%s.mailgun.org/messages" % mailgun_api_account, auth=('api', mailgun_api_key), data={
+def send_mailgun_mail(to_address, from_address, subject, message_text, message_html=None):
+    message_data = {
         'to': to_address,
         'from': from_address,
         'subject': subject,
         'text': message_text,
-        'html': message_html
-    })
+    }
+    if message_html: message_data['html'] = message_html
+    print requests.post("https://api.mailgun.net/v2/%s.mailgun.org/messages" % config.mailgun_api_account, auth=('api', config.mailgun_api_key), data=message_data)
 
 if hasattr(config, 'aws_access_key'): ses_conn = boto.ses.SESConnection(config.aws_access_key, config.aws_secret_key)
 def send_ses_mail(to_address, from_address, subject, message_text, message_html=None):

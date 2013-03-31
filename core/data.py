@@ -3,12 +3,13 @@ from spromata.meta_data import *
 class User(Document):
     private = ['password']
     @property
-    def first_name(self): return self.name.split(' ')[0]
+    def full_name(self): return ' '.join(filter(None, [self.first_name, self.last_name]))
     @property
-    def last_name(self): return ' '.join(self.name.split(' ')[1:])
+    def name(self):
+        if hasattr(self, 'name'): return self['name']
+        return self.full_name
     @property
     def is_admin(self): return self.type == 'admin'
-    @property
     def typed(self): return self # TODO: this is just filler right now
 
 class Users(Collection):

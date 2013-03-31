@@ -13,7 +13,10 @@ db = mongo_connection[config.mongo_db]
 def adj_id(d):
     if d.has_key('_id'):
         if not isinstance(d['_id'], oid):
-            d['_id'] = oid(d['_id'])
+            if isinstance(d['_id'], list):
+                d['_id'] = {'$in': map(oid, d['_id'])}
+            else:
+                d['_id'] = oid(d['_id'])
 
 class Results(list): pass
 
@@ -26,6 +29,7 @@ class Collection(object):
         for k, v in query.items():
             # don't add options
             if k=='_id' or not k.startswith('_'): fetch_query[k] = v
+        adj_id(fetch_query)
         if query.has_key('_include'):
             fields = dict([(f, 1) for f in query['_include']])
             results = self.collection.find(fetch_query, fields)

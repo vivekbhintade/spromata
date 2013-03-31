@@ -47,11 +47,15 @@ def sanitize_text(data):
     d = d.replace('>', '')
     d = d.replace('<', '')
     return d
+def to_json_str(ob):
+    if hasattr(ob, 'to_json_str'): return ob.to_json_str()
+    return json.dumps(ob)
 jinja2_filters = {
     'to_nicedate': timestamp_to_nicedate,
     'to_local_date': timestamp_to_local_date,
     'to_prettydate': timestamp_to_prettydate,
     'sanitize': sanitize_text,
+    'to_json_str': to_json_str,
 }
 jinja2_env = Environment(loader=ReloadingLoader())
 jinja2_env.filters.update(**jinja2_filters)

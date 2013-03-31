@@ -19,7 +19,7 @@ STOP_WORDS = (
     "etsy,shop,product,item"
 ).split(',')
 
-wordify = lambda s: re.findall('[a-z0-9\']+', s.lower())
+wordify = lambda s: re.findall('[a-z]+', s.lower())
 goodwords = lambda ws: [w for w in ws if w not in STOP_WORDS and len(w) > 2]
 
 def get_keywords(*word_sources):
@@ -39,12 +39,19 @@ def unescape(text):
                 else: return unichr(int(text[2:-1]))
             except ValueError: pass
         else: # named entity
+            if text[1:-1] == 'apos': return "'"
+            if text[1:-1] == 'quot': return '"'
+            if text[1:-1] == 'amp': return '&'
             try: text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
             except KeyError: pass
-        return text # leave as is
-    return re.sub("&#?\w+;", fixup, text)
+        return '' # leave as nothing
+    return re.sub("(?u)&#?\w+;", fixup, text)
 
 def encode(text):
-    return unicode(text)
+    try:
+        return unicode(text)
+    except:
+        return unicode(text, 'latin1')
 
 keywordify = composer(goodwords, stemmer.stemWords, wordify, unescape, encode)
+nostem_keywordify = composer(goodwords, wordify, unescape, encode)
