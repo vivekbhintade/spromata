@@ -1,0 +1,45 @@
+{% extends "base" %}
+{% block title %}Forgot your password?{% endblock %}
+{% block extra_head %}
+<script type="text/javascript">
+$(function() {
+    $('form.reset_password').submit(function(e) {
+        var form_errors = []
+        if ($('form.reset_password [name=password]').val().length < 5)
+            form_errors.push('Password too short.');
+        if ($('form.reset_password [name=password]').val() != $('form.reset_password [name=password_confirm]').val())
+            form_errors.push('Passwords do not match.');
+        if (form_errors.length > 0) {
+            e.preventDefault();
+            $('.errors').empty();
+            _.each(form_errors, function(fe) {
+                $('.errors').append(h('div', {class:'alert alert-error'}, fe));
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
+{% block content %}
+<h1>Reset your password</h1>
+<div class="row">
+    <div class="span8">
+        <form action='' method='post' class='form-inline reset_password'>
+            <p>
+            <label for="username">Username</label>
+            <input type="text" class="" name="username" placeholder="Username" />
+            <label for="email">Email</label>
+            <input type="email" class="" name="email" placeholder="Email" />
+            </p>
+            <p>
+            <label for="password">New Password</label>
+            <input type="password" class="" name="password" placeholder="Password" />
+            <label for="password_confirm">Confirm Password</label>
+            <input type="password" class="" name="password_confirm" placeholder="Confirm Password" />
+            </p>
+            <button class="btn btn-primary" type="submit">Reset</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
