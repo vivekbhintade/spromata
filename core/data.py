@@ -6,7 +6,7 @@ class User(Document):
     def full_name(self): return ' '.join(filter(None, [self.first_name, self.last_name]))
     @property
     def name(self):
-        if hasattr(self, 'name'): return self['name']
+        if self.has_key('name'): return self['name']
         return self.full_name
     @property
     def is_admin(self): return self.type == 'admin'
