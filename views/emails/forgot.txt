@@ -1,0 +1,7 @@
+Hey {{ forgotten_user.first_name }},
+
+To reset your ItsMyURLs password, go here: {{ reset_link }}
+
+See you soon!
+ItsMyURLs
+
