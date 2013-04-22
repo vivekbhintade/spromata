@@ -24,8 +24,6 @@ import config
 def spromata_root(): return os.path.dirname(__file__)
 def spromata_static_path(): return os.path.join(spromata_root(), 'static')
 
-from templating import *
-
 def log(s): sys.stderr.write(str(s).strip() + '\n')
 
 def password_hash(s): return hashlib.sha512(s).hexdigest()
@@ -168,3 +166,8 @@ def upload_to_s3(bucket_name, file, filename=None, metadata={}):
     file_key.set_contents_from_file(file)
     #file_key.make_public()
     return s3_url(bucket.name, file_key.name)
+
+# Some things just gotta hang out at the bottom
+
+from templating import *
+
