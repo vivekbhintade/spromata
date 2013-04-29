@@ -4,7 +4,6 @@ from spromata.core.auth import *
 import cgi
 def sanitize(s):
     if isinstance(s, str):
-        print 'original: %s\nescaped: %s' % (s, cgi.escape(s))
         return cgi.escape(s)
     return s
 
