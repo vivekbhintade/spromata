@@ -1,0 +1,7 @@
+Stemmer
+boto
+bottle
+gevent
+pymongo
+pystache
+requests
