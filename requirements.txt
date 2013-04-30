@@ -1,4 +1,4 @@
-Stemmer
+PyStemmer
 boto
 bottle
 gevent
