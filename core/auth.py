@@ -39,6 +39,7 @@ def add_session(context):
         if session:
             if session.timeout and session.timeout < datetime.datetime.now():
                 context['errors'].append("Your session has timed out.")
+                sessions.remove(**session)
                 return context
             context['session'] = session
             context['user'] = session.user.typed()
