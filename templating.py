@@ -63,9 +63,7 @@ jinja2_env.filters.update(**jinja2_filters)
 
 def render_jinja2(template, **context):
     return jinja2_env.get_template(template).render(**context)
-    print "LETS RENDER"
     rendered = bottle.template(template, template_adapter=bottle.Jinja2Template, template_settings={'cache_size': 0, 'autoescape':True}, **context)
-    print "YEA RENDERING"
     return rendered
 
 mustacher = pystache.Renderer(search_dirs=['views'], file_extension='html')
