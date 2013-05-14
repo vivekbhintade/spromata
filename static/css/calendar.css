@@ -1,0 +1,34 @@
+.modal .calendar {
+  border-top: 1px solid #dddddd; }
+
+.calendar {
+  clear: right;
+  background: #eeeeee;
+  padding: 2px; }
+  .calendar a.prev, .calendar a.next {
+    display: block;
+    padding: 14px;
+    color: #999999; }
+  .calendar h2 {
+    margin-top: 8px;
+    padding-bottom: 0;
+    color: #333333; }
+  .calendar .days {
+    clear: both; }
+    .calendar .days .day {
+      display: inline-block;
+      background: white;
+      color: #333333;
+      width: 14.25%;
+      min-height: 50px;
+      box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      border: 1px solid #eeeeee;
+      padding: 8px;
+      clear: left; }
+      .calendar .days .day.selected {
+        border: 1px solid #2dbfce; }
+      .calendar .days .day.today {
+        background: #efffff; }
+      .calendar .days .day.empty {
+        background: #fafafa; }
