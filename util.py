@@ -119,7 +119,6 @@ def start_context():
     context['messages'] = []
     context['errors'] = []
     context['config'] = config
-    context['submitted'] = Document()
     context['now'] = datetime.datetime.now(pytz.utc)
     context['timestamp'] = time.mktime(datetime.datetime.now(pytz.utc).timetuple())
     return context
