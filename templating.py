@@ -24,8 +24,16 @@ class ReloadingLoader(BaseLoader):
             except: return False
         return contents, filepath, uptodate
 
-def timestamp_to_nicedate(timestamp):
-    return datetime.datetime.fromtimestamp(timestamp).strftime("%b %d, %Y @ %I:%M %p")
+def timestamp_to_nicedate_notime(timestamp):
+    return timestamp_to_nicedate(timestamp, False)
+def timestamp_to_nicedate(timestamp, incl_time=True):
+    if type(time) in (int, float):
+        d = datetime.datetime.fromtimestamp(timestamp)
+    elif isinstance(timestamp,datetime.datetime):
+        d = timestamp
+    date_format = "%b %d, %Y"
+    if incl_time: date_format += " @ %I:%M %p"
+    return d.strftime(date_format)
 def timestamp_to_local_date(time):
     return local_date(time)
 def timestamp_to_prettydate(timestamp):
@@ -52,6 +60,7 @@ def to_json_str(ob):
     return json.dumps(pymongo_to_json(ob))
 jinja2_filters = {
     'to_nicedate': timestamp_to_nicedate,
+    'to_nicedate_notime': timestamp_to_nicedate_notime,
     'to_local_date': timestamp_to_local_date,
     'to_prettydate': timestamp_to_prettydate,
     'sanitize': sanitize_text,
