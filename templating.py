@@ -27,15 +27,15 @@ class ReloadingLoader(BaseLoader):
 def timestamp_to_nicedate_notime(timestamp):
     return timestamp_to_nicedate(timestamp, False)
 def timestamp_to_nicedate(timestamp, incl_time=True):
-    if type(time) in (int, float):
+    if type(timestamp) in (int, float):
         d = datetime.datetime.fromtimestamp(timestamp)
     elif isinstance(timestamp,datetime.datetime):
         d = timestamp
     date_format = "%b %d, %Y"
     if incl_time: date_format += " @ %I:%M %p"
     return d.strftime(date_format)
-def timestamp_to_local_date(time):
-    return local_date(time)
+def timestamp_to_local_date(timestamp):
+    return local_date(timestamp)
 def timestamp_to_prettydate(timestamp):
     return pretty_date(timestamp)
 def sanitize_text(data):
