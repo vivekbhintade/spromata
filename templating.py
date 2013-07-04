@@ -3,6 +3,8 @@ import config
 import re
 from jinja2 import Environment, BaseLoader, TemplateNotFound, Markup
 import pystache
+import locale
+locale.setlocale(locale.LC_ALL, 'en_US')
 
 def spromata_view_dir():
     return os.path.join(spromata_root(), 'views')
@@ -24,6 +26,10 @@ class ReloadingLoader(BaseLoader):
             except: return False
         return contents, filepath, uptodate
 
+# Formatting filters
+
+# - Time
+
 def timestamp_to_nicedate_notime(timestamp):
     return timestamp_to_nicedate(timestamp, False)
 def timestamp_to_nicedate(timestamp, incl_time=True):
@@ -38,6 +44,14 @@ def timestamp_to_local_date(timestamp):
     return local_date(timestamp)
 def timestamp_to_prettydate(timestamp):
     return pretty_date(timestamp)
+
+# - Money
+
+def format_currency(value, with_space=False):
+    return "$%s%s" % (' ' if with_space else '', locale.format("%.2f", value, grouping=True))
+
+# Conversion filters
+
 def sanitize_text(data):
     if not data: return ''
     p = re.compile(r'<.*?>')
@@ -55,9 +69,11 @@ def sanitize_text(data):
     d = d.replace('>', '')
     d = d.replace('<', '')
     return d
+
 from spromata.util import pymongo_to_json
 def to_json_str(ob):
     return json.dumps(pymongo_to_json(ob))
+
 jinja2_filters = {
     'to_nicedate': timestamp_to_nicedate,
     'to_nicedate_notime': timestamp_to_nicedate_notime,
@@ -66,6 +82,7 @@ jinja2_filters = {
     'sanitize': sanitize_text,
     'to_json': pymongo_to_json,
     'to_json_str': to_json_str,
+    'format_currency': format_currency,
 }
 jinja2_env = Environment(loader=ReloadingLoader())
 jinja2_env.filters.update(**jinja2_filters)
