@@ -1,4 +1,4 @@
-import datetime, pytz
+import datetime, pytz, dateutil.parser
 
 def local_date(time, tz='US/Eastern'):
     return pytz.timezone(tz).fromutc(time)
@@ -12,7 +12,14 @@ def pretty_date(time=False):
     now = datetime.datetime.now()
     if type(time) in (int, float):
         diff = now - datetime.datetime.fromtimestamp(time)
-    elif isinstance(time,datetime.datetime):
+    elif isinstance(time, datetime.datetime):
+        if not time.tzname():
+            time = pytz.utc.localize(time)
+        now = datetime.datetime.now(pytz.utc)
+        diff = now - time 
+    elif isinstance(time, (str, unicode)):
+        time = dateutil.parser.parse(time)
+        print "Parsed time as %s" % time
         if not time.tzname():
             time = pytz.utc.localize(time)
         now = datetime.datetime.now(pytz.utc)
