@@ -84,7 +84,7 @@ jinja2_filters = {
     'to_json_str': to_json_str,
     'format_currency': format_currency,
 }
-jinja2_env = Environment(loader=ReloadingLoader())
+jinja2_env = Environment(loader=ReloadingLoader(), extensions=["jinja2.ext.do",])
 jinja2_env.filters.update(**jinja2_filters)
 
 def render_jinja2(template, **context):
