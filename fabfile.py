@@ -4,7 +4,7 @@ import config
 HOSTNAME = 'spromata'
 
 env.hosts = [HOSTNAME]
-env.user = "ec2-user"
+env.use_ssh_config = True
 env.key_filename = "$HOME/.ssh/%s.pem" % HOSTNAME
 
 # Remote
