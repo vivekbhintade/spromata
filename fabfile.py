@@ -1,9 +1,11 @@
 from fabric.api  import *
 import config
 
-env.hosts = ['prontotype.us']
-env.user = "ec2-user"
-env.key_filename = ["/Users/sean/.ssh/hjklist_key_0.pem",]
+HOSTNAME = 'spromata'
+
+env.hosts = [HOSTNAME]
+env.use_ssh_config = True
+env.key_filename = "$HOME/.ssh/%s.pem" % HOSTNAME
 
 # Remote
 

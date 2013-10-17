@@ -12,7 +12,7 @@ db = mongo_connection[config.mongo_db]
 
 def adj_id(d):
     if d.has_key('_id'):
-        if not isinstance(d['_id'], oid):
+        if not isinstance(d['_id'], (oid, dict)):
             if isinstance(d['_id'], list):
                 d['_id'] = {'$in': map(oid, d['_id'])}
             else:
