@@ -1,23 +1,25 @@
 from bson.objectid import ObjectId as oid
 from collections import MutableMapping
+from functools import partial
 import json
 
-def better_default(obj):
+def better_default(obj, scope=None):
+    _scoped = partial(better_default, scope=scope)
     if isinstance(obj, str): return obj
     if isinstance(obj, oid): return str(obj)
-    if isinstance(obj, Document): return obj.to_json()
+    if isinstance(obj, Document): return obj.to_json(scope)
     if hasattr(obj, 'isoformat'): return obj.isoformat()
     if isinstance(obj, list):
-        return map(better_default, obj)
+        return map(_scoped, obj)
     if isinstance(obj, (dict, MutableMapping)):
-        return dict([(k, better_default(v)) for k,v in obj.items()])
+        return dict([(k, _scoped(v)) for k,v in obj.items()])
     #return bson.json_util.default(obj)
     return obj
 def old_pymongo_to_json(thing):
     return json.dumps(thing, default=better_default)
-def new_pymongo_to_json(thing):
+def new_pymongo_to_json(thing, scope=None):
     if hasattr(thing, 'to_json'): thing = thing.to_json()
-    thing = better_default(thing)
+    thing = better_default(thing, scope)
     return json.dumps(thing)
 pymongo_to_json = new_pymongo_to_json
 
@@ -47,7 +49,7 @@ class Document(dict):
     @property
     def created_at(self):
         return self.id.generation_time
-    def to_json(self):
+    def to_json(self, scope=None):
         self_copy = self.copy()
         # turn _id into str(id)
         self_copy['_id'] = self.id_str
@@ -58,10 +60,18 @@ class Document(dict):
                 self_copy[a[0]] = getattr(self, a[1])
             elif isinstance(a, str):
                 self_copy[a] = getattr(self, a)
+        if scope:
+            if getattr(self, 'public_' + scope):
+                # ensure scoped keys
+                for a in getattr(self, 'public_' + scope):
+                    if isinstance(a, tuple):
+                        self_copy[a[0]] = getattr(self, a[1])
+                    elif isinstance(a, str):
+                        self_copy[a] = getattr(self, a)
         # sterilize other fields
         self_copy_clean = {}
         for k, v in self_copy.items():
-            self_copy_clean[k] = better_default(v)
+            self_copy_clean[k] = better_default(v, scope)
         # delete private keys
         for a in self.private:
             if self_copy_clean.has_key(a):
