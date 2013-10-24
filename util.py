@@ -41,6 +41,8 @@ def send_mailgun_mail(to_address, from_address, subject, message_text, message_h
 if hasattr(config, 'aws_access_key'): ses_conn = boto.ses.SESConnection(config.aws_access_key, config.aws_secret_key)
 def send_ses_mail(to_address, from_address, subject, message_text, message_html=None):
     return ses_conn.send_email(from_address, subject, message_text, to_address, html_body=message_html)
+def send_ses_raw_mail(to_address, from_address, message_body):
+    return ses_conn.send_raw_email(message_body, source=from_address, destinations=[to_address])
 
 send_mail = send_ses_mail
 
