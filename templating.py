@@ -46,7 +46,10 @@ def timestamp_to_local_date(timestamp):
 def timestamp_to_prettydate(timestamp):
     return pretty_date(timestamp)
 
-# - Money
+# - Money and other numbers
+
+def format_bigint(value):
+    return locale.format("%d", value, grouping=True)
 
 def format_currency(value, with_space=False):
     return "$%s%s" % (' ' if with_space else '', locale.format("%.2f", value, grouping=True))
@@ -83,6 +86,7 @@ jinja2_filters = {
     'sanitize': sanitize_text,
     'to_json': pymongo_to_json,
     'to_json_str': to_json_str,
+    'format_bigint': format_bigint,
     'format_currency': format_currency,
 }
 jinja2_env = Environment(loader=ReloadingLoader(), extensions=["jinja2.ext.do",])
