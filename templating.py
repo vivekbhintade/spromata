@@ -6,15 +6,16 @@ import pystache
 import locale
 locale.setlocale(locale.LC_ALL, 'en_US')
 
-def spromata_view_dir():
-    return os.path.join(spromata_root(), 'views')
-bottle.TEMPLATE_PATH.append(spromata_view_dir())
-SPROMATA_VIEW_DIR = spromata_view_dir()
+SPROMATA_VIEW_DIR = os.path.join(spromata_root(), 'views')
+bottle.TEMPLATE_PATH.append(SPROMATA_VIEW_DIR)
 
 class ReloadingLoader(BaseLoader):
     def get_source(self, environment, template_name):
         if len(template_name.split('.'))<2: template_name += '.html'
-        filepath = os.path.join('views', template_name)
+        if hasattr(config, 'template_path'):
+            filepath = os.path.join(config.template_path, template_name)
+        else:
+            filepath = os.path.join('views', template_name)
         if not os.path.exists(filepath): filepath = os.path.join(SPROMATA_VIEW_DIR, template_name)
         if not os.path.exists(filepath): raise TemplateNotFound(template_name)
         f = open(filepath)
